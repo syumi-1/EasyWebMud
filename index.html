@@ -181,6 +181,7 @@
                         window.mudSettings.elementRule[mudElementName] = {};
                     }
                     window.mudSettings.elementRule[mudElementName][mudElementNameDesc] = mudElementNameAction;
+                    localStorage.setItem("mudSettings", JSON.stringify(window.mudSettings));
                 }, false);
                 mudElementUL.appendChild(mudElementAddAction);
                 let mudElementDelAction = document.createElement('li');
