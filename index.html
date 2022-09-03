@@ -117,8 +117,9 @@
             <pre name="mud" id="mud"></pre>
         </div>
         <div>
-            <form onsubmit="sendCmd();cmd.select();return false;" id="cmd-form">
+            <form onsubmit="return false;" id="cmd-form">
                 <input type="text" name="cmd" id="cmd" placeholder="请输入游戏指令">
+                <input type="submit" onclick="sendCmd();cmd.select();" id="bsc">
             </form>
         </div>
         <div>
