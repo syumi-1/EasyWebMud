@@ -29,10 +29,9 @@
             line-height: 1.5;
             position: relative;
             vertical-align: top;
-            border-radius: .375em;
             background-color: rgb(24, 26, 27);
+            border-radius: .375em;
             border-color: rgb(58, 63, 65);
-            color: rgb(198, 193, 185);
             box-shadow: rgba(8, 8, 8, 0.05) 0px 0.0625em 0.125em inset;
         }
 
@@ -173,7 +172,7 @@
                 shadow.className = 'mud-pop-shadow';
                 dialog.className = 'mud-pop-dialog';
                 shadow.addEventListener('click', () => { document.body.removeChild(shadow); document.body.removeChild(dialog); }, false);
-                let mudElementTitle = document.createElement('h3');
+                let mudElementTitle = document.createElement('div');
                 mudElementTitle.innerText = mudElement;
                 dialog.appendChild(mudElementTitle);
                 let mudElementUL = document.createElement('ul');
@@ -333,7 +332,7 @@
                     newSpan.className = 'mud-elements';
                     newSpan.innerText = cmd.value + "\n";
                     let elementText = cmd.value;
-                    newSpan.addEventListener('click', () => { cmd.value = elementText + "\n"; window.sendCmd(); });
+                    newSpan.addEventListener('click', () => { cmd.value = elementText; window.sendCmd(); });
                     mud.appendChild(newSpan);
                     ws.send(cmd.value + "\n");
                     mud.scrollTop = mud.scrollHeight;
