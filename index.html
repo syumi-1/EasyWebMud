@@ -12,16 +12,32 @@
     <title>Easy Mud Test</title>
     <style>
         body {
+            color-scheme: dark !important;
             background-color: #181a1b !important;
             color: rgb(185, 179, 170);
             font-size: 2vw;
         }
 
         input {
+            text-size-adjust: 100%;
+            align-items: center;
+            border: 1px solid transparent;
+            display: inline-flex;
+            font-size: 1rem;
+            height: 2.5em;
+            justify-content: flex-start;
+            line-height: 1.5;
+            position: relative;
+            vertical-align: top;
+            border-radius: .375em;
             background-color: rgb(24, 26, 27);
             border-color: rgb(58, 63, 65);
             color: rgb(198, 193, 185);
-            box-shadow: rgb(8 8 8 / 5%) 0px 0.0625em 0.125em inset;
+            box-shadow: rgba(8, 8, 8, 0.05) 0px 0.0625em 0.125em inset;
+        }
+
+        input:hover {
+            border-color: rgb(69, 75, 78);
         }
 
         #mud {
@@ -117,15 +133,17 @@
             <pre name="mud" id="mud"></pre>
         </div>
         <div>
-            <form onsubmit="return false;" id="cmd-form">
+            <form onsubmit="return false;">
                 <input type="text" name="cmd" id="cmd" placeholder="请输入游戏指令">
                 <input type="submit" onclick="sendCmd();cmd.select();" id="bsc">
             </form>
         </div>
         <div>
-            <input type="text" name="url" id="url" value="wss://mud.ren:8888"
-                placeholder="请输入 websocket 服务器地址，如：ws://mud.ren:8888">
-            <input type="button" onclick="mudConnect();" id="bmc" value="连接">
+            <form onsubmit="return false;">
+                <input type="text" name="url" id="url" value="wss://mud.ren:8888"
+                    placeholder="请输入 websocket 服务器地址，如：ws://mud.ren:8888">
+                <input type="submit" onclick="mudConnect();" id="bmc" value="连接">
+            </form>
         </div>
     </div>
 
