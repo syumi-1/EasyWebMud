@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="Cache" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Easy Mud Test</title>
     <style>
@@ -113,13 +117,15 @@
             <pre name="mud" id="mud"></pre>
         </div>
         <div>
-            <input type="text" name="cmd" id="cmd" placeholder="请输入游戏指令">
-            <input type="submit" onclick="sendCmd()" id="bsc">
+            <form onsubmit="sendCmd();return false;" id="cmd-form">
+                <input type="text" name="cmd" id="cmd" placeholder="请输入游戏指令">
+                <input type="submit" onclick="sendCmd();" id="bsc">
+            </form>
         </div>
         <div>
             <input type="text" name="url" id="url" value="wss://mud.ren:8888"
                 placeholder="请输入 websocket 服务器地址，如：ws://mud.ren:8888">
-            <input type="button" onclick="mudConnect()" id="bmc" value="连接">
+            <input type="button" onclick="mudConnect();" id="bmc" value="连接">
         </div>
     </div>
 
@@ -137,12 +143,7 @@
                     elementRule: {}
                 }
             }
-            // 回车发送指令
-            cmd.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") {
-                    sendCmd();
-                }
-            });
+
             const mudPopDialog = (mudElement) => {
                 if (window.mudSettings.elementRule.hasOwnProperty(mudElement) && window.mudSettings.elementRule[mudElement].hasOwnProperty(mudElement)) {
                     cmd.value = window.mudSettings.elementRule[mudElement][mudElement].replaceAll('{{C}}', mudElement);
