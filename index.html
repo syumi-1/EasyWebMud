@@ -14,7 +14,7 @@
         body {
             background-color: #181a1b !important;
             color: rgb(185, 179, 170);
-            font-size: 1.5vmax;
+            font-size: 2vw;
         }
 
         input {
@@ -117,9 +117,9 @@
             <pre name="mud" id="mud"></pre>
         </div>
         <div>
-            <form onsubmit="sendCmd();return false;" id="cmd-form">
+            <form onsubmit="sendCmd();cmd.select();return false;" id="cmd-form">
                 <input type="text" name="cmd" id="cmd" placeholder="请输入游戏指令">
-                <input type="submit" onclick="sendCmd();" id="bsc">
+                <input type="submit" onclick="sendCmd();cmd.select();" id="bsc">
             </form>
         </div>
         <div>
@@ -314,11 +314,11 @@
                     let newSpan = document.createElement('span');
                     newSpan.className = 'mud-elements';
                     newSpan.innerText = cmd.value + "\n";
-                    newSpan.addEventListener('click', mudElementClickEventHandler);
+                    let elementText = cmd.value;
+                    newSpan.addEventListener('click', () => { cmd.value = elementText + "\n"; window.sendCmd(); });
                     mud.appendChild(newSpan);
                     ws.send(cmd.value + "\n");
-                    cmd.select();
-                    //cmd.value = "";
+                    mud.scrollTop = mud.scrollHeight;
                 } else {
                     console.log("服务器未连接！");
                 }
