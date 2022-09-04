@@ -192,9 +192,9 @@
                 let mudElementAddAction = document.createElement('li');
                 mudElementAddAction.innerText = '增加行为';
                 mudElementAddAction.addEventListener('click', () => {
-                    let mudElementName = prompt("请输入要增加行为的指令名", mudElement);
-                    let mudElementNameDesc = prompt("请输入行为内容的描述(输入与指令名相同则点击即触发)", mudElement);
-                    let mudElementNameAction = prompt("请输入行为指令(使用{{C}}替换指令名)", '{{C}}');
+                    let mudElementName = prompt("请输入要增加行为的指令名", mudElement); if (mudElementName == null) return;
+                    let mudElementNameDesc = prompt("请输入行为内容的描述(输入与指令名相同则点击即触发)", mudElement); if (mudElementNameDesc == null) return;
+                    let mudElementNameAction = prompt("请输入行为指令(使用{{C}}替换指令名)", '{{C}}'); if (mudElementNameAction == null) return;
                     if (!window.mudSettings.elementRule.hasOwnProperty(mudElementName)) {
                         window.mudSettings.elementRule[mudElementName] = {};
                     }
@@ -205,7 +205,7 @@
                 let mudElementDelAction = document.createElement('li');
                 mudElementDelAction.innerText = '删除行为';
                 mudElementDelAction.addEventListener('click', () => {
-                    let mudElementName = prompt("请输入要删除的命令", mudElement);
+                    let mudElementName = prompt("请输入要删除的命令", mudElement); if (mudElementName == null) return;
                     if (window.mudSettings.elementRule.hasOwnProperty(mudElementName)) {
                         delete window.mudSettings.elementRule[mudElementName];
                         localStorage.setItem("mudSettings", JSON.stringify(window.mudSettings));
@@ -215,8 +215,8 @@
                 let mudElementCopyAction = document.createElement('li');
                 mudElementCopyAction.innerText = '复制行为';
                 mudElementCopyAction.addEventListener('click', () => {
-                    let mudElementNameFrom = prompt("请输入要复制的命令来源", mudElement);
-                    let mudElementNameTo = prompt("请输入要复制到的命令", mudElement);
+                    let mudElementNameFrom = prompt("请输入要复制的命令来源", mudElement); if (mudElementNameFrom == null) return;
+                    let mudElementNameTo = prompt("请输入要复制到的命令", mudElement); if (mudElementNameTo == null) return;
                     if (window.mudSettings.elementRule.hasOwnProperty(mudElementNameTo)) {
                         window.mudSettings.elementRule[mudElementNameTo] = JSON.parse(JSON.stringify(window.mudSettings.elementRule[mudElementNameFrom]));
                         localStorage.setItem("mudSettings", JSON.stringify(window.mudSettings));
