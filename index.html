@@ -134,14 +134,14 @@
         <div>
             <form onsubmit="return false;">
                 <input type="text" name="cmd" id="cmd" placeholder="请输入游戏指令">
-                <input type="submit" onclick="sendCmd();cmd.select();" id="bsc">
+                <input type="submit" id="bsc">
             </form>
         </div>
         <div>
             <form onsubmit="return false;">
                 <input type="text" name="url" id="url" value="wss://mud.ren:8888"
                     placeholder="请输入 websocket 服务器地址，如：ws://mud.ren:8888">
-                <input type="submit" onclick="mudConnect();" id="bmc" value="连接">
+                <input type="submit" id="bmc" value="连接">
             </form>
         </div>
     </div>
@@ -159,6 +159,12 @@
                 window.mudSettings = {
                     elementRule: {}
                 }
+            }
+            document.getElementById("bsc").onclick = () => {
+                window.sendCmd(); cmd.select();
+            }
+            document.getElementById("bmc").onclick = () => {
+                window.mudConnect();
             }
 
             const mudPopDialog = (mudElement) => {
