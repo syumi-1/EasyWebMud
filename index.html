@@ -150,7 +150,8 @@
     <script src="./ansi_up.js"></script>
     <script>
         (function (window, document) {
-            // 玩家输入指令
+            "use strict";
+            let ws = undefined;
             const cmd = document.getElementById("cmd");
             const mud = document.getElementById("mud");
             const ansi_up = new AnsiUp;
@@ -161,16 +162,16 @@
                 }
             }
             document.getElementById("bsc").onclick = () => {
-                window.sendCmd(); cmd.select();
+                sendCmd(); cmd.select();
             }
             document.getElementById("bmc").onclick = () => {
-                window.mudConnect();
+                mudConnect();
             }
 
             const mudPopDialog = (mudElement) => {
                 if (window.mudSettings.elementRule.hasOwnProperty(mudElement) && window.mudSettings.elementRule[mudElement].hasOwnProperty(mudElement)) {
                     cmd.value = window.mudSettings.elementRule[mudElement][mudElement].replaceAll('{{C}}', mudElement);
-                    window.sendCmd();
+                    sendCmd();
                     return;
                 }
                 let shadow = document.createElement('div');
@@ -188,7 +189,7 @@
                         tempLI.innerText = desc;
                         tempLI.addEventListener('click', () => {
                             cmd.value = window.mudSettings.elementRule[mudElement][desc].replaceAll('{{C}}', mudElement);
-                            window.sendCmd();
+                            sendCmd();
                             document.body.removeChild(shadow);
                             document.body.removeChild(dialog);
                         }, false);
@@ -266,22 +267,22 @@
                 document.body.append(dialog);
             }
             const mudElementClickEventHandler = (_e) => {
-                let mudElement = _e.currentTarget.innerText.replaceAll(/([a-zA-Z][a-zA-Z ]{0,30}[a-zA-Z])/g, '$1').toLowerCase();
+                let mudElement = _e.currentTarget.innerText.replaceAll(/([a-zA-Z][a-zA-Z0-9_\- ]{0,200}[a-zA-Z0-9])/g, '$1').toLowerCase();
                 mudPopDialog(mudElement);
             }
-            window.mudConnect = function () {
+            const mudConnect = function () {
                 function addMsg(msg) {
-                    if (document.getElementsByClassName('mudSection').length > 100) {
+                    if (document.getElementsByClassName('mud-section').length > 100) {
                         for (let i = 20; i == 0; i--) {
-                            mud.removeChild(document.getElementsByClassName('mudSection')[i]);
+                            mud.removeChild(document.getElementsByClassName('mud-section')[i]);
                         }
                     }
                     let msgHtml = ansi_up.ansi_to_html(msg);
                     let newSpan = document.createElement('span');
-                    newSpan.className = 'mudSection';
+                    newSpan.className = 'mud-section';
                     newSpan.innerHTML = msgHtml;
                     for (let i = 0; i < newSpan.children.length; i++) {
-                        newSpan.children[i].innerText = newSpan.children[i].innerText.replace(/([a-zA-Z][a-zA-Z ]{0,30}[a-zA-Z])/g, '{{span}}$1{{/span}}');
+                        newSpan.children[i].innerText = newSpan.children[i].innerText.replace(/([a-zA-Z][a-zA-Z0-9_\- ]{0,200}[a-zA-Z0-9])/g, '{{span}}$1{{/span}}');
                         newSpan.children[i].innerHTML = newSpan.children[i].innerHTML.replaceAll('{{/span}}', '</span>').replaceAll('{{span}}', '<span class="mud-elements">')
                     }
                     let mudElements = newSpan.getElementsByClassName('mud-elements');
@@ -332,13 +333,13 @@
                     alert("您的浏览器不支持 WebSocket!");
                 }
             }
-            window.sendCmd = function () {
+            const sendCmd = function () {
                 if (ws) {
                     let newSpan = document.createElement('span');
-                    newSpan.className = 'mud-elements';
+                    newSpan.className = 'mud-section mud-elements';
                     newSpan.innerText = cmd.value + "\n";
                     let elementText = cmd.value;
-                    newSpan.addEventListener('click', () => { cmd.value = elementText; window.sendCmd(); });
+                    newSpan.addEventListener('click', () => { cmd.value = elementText; sendCmd(); });
                     mud.appendChild(newSpan);
                     ws.send(cmd.value + "\n");
                     mud.scrollTop = mud.scrollHeight;
