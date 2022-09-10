@@ -105,11 +105,25 @@
         }
 
         .container_bottom2 input[type="text"] {
-            width: 80%;
+            width: 75%;
         }
 
         .container_bottom2 input[type="submit"] {
-            width: 15%;
+            width: 10%;
+        }
+
+        .container_bottom2 input[type="button"] {
+            width: 10%;
+        }
+
+        .container_bottom2 input[type="submit"]:active {
+            border-color: red;
+            color: red;
+        }
+
+        .container_bottom2 input[type="button"]:active {
+            border-color: red;
+            color: red;
         }
 
         .container_sidebar {
@@ -236,9 +250,6 @@
         .mud-pop-dialog * {
             font-size: 2.5vh;
             margin: 0.5em;
-            display: flex;
-            float: left;
-            vertical-align: middle;
         }
     </style>
 </head>
@@ -303,6 +314,7 @@
     </div>
     <div class="container container_bottom2">
         <form onsubmit="return false;">
+            <input type="button" value="↓" onclick="javascript:cmd.value=document.getSelection().toString();">
             <input type="text" name="cmd" id="cmd" placeholder="请输入游戏指令" autocomplete="off">
             <input type="submit" id="bsc">
         </form>
@@ -310,8 +322,19 @@
     <script>
         class mud {
             constructor() {
-                this.settings = { variables: {}, elementRules: {}, triggers: {}, controls: {}, timers: {} };
-                this.runTimeFuncList = { elementRules: {}, triggers: {}, controls: {}, timers: {}, timersStatus: {} };
+                this.settings = {
+                    variables: {},
+                    elementRules: {
+                        pravite: {},
+                        public: {},
+                        group: {},
+                        groupInfo: {}
+                    },
+                    triggers: {},
+                    controls: {},
+                    timers: {}
+                };
+                this.runTimeFuncList = { triggers: {}, controls: {}, timers: {}, timersStatus: {} };
                 this.ws = undefined;
             }
 
@@ -323,18 +346,18 @@
             ApiLoadSetting() {
                 this.settings = JSON.parse('' + self.localStorage.getItem("mudSettings"));
             }
-            //导出配置
+            //文件导出配置
             ApiExportSetting() {
                 let exportLink = self.document.createElement('a');
                 exportLink.download = 'mudSettings.txt';
                 exportLink.style.display = 'none';
-                let blob = new Blob([JSON.stringify(this.settings)], { type: "text/plain" });
+                let blob = new Blob([JSON.stringify(this.settings, null, 4)], { type: "text/plain" });
                 exportLink.href = URL.createObjectURL(blob);
                 self.document.body.appendChild(exportLink);
                 exportLink.click();
                 self.document.body.removeChild(exportLink);
             }
-            //导入配置
+            //文件导入配置
             ApiImportSetting() {
                 let importObj = self.document.createElement('input');
                 importObj.type = 'file';
@@ -353,9 +376,9 @@
             }
 
             //创建对话框
-            ApiMudDialog(de) {
+            ApiMudDialog(dialogItem) {
                 console.log(this.settings);
-                let dialog = de;
+                let dialog = dialogItem;
                 let shadow = document.createElement('div');
                 dialog.classList.add('mud-pop-dialog');
                 shadow.className = 'mud-pop-shadow';
@@ -366,7 +389,7 @@
             }
 
             //创建动态JS脚本
-            ApiMudScript(sc) {
+            _ApiMudScript(sc) {
                 return new Promise((resolve) => {
                     try {
                         self._mud_ = this;
@@ -382,20 +405,6 @@
                         resolve();
                     }
                 })
-            }
-
-            //创建连接对话框
-            ApiConnectDialog() {
-                let dialog = document.createElement('div');
-                dialog.innerHTML = `<div>请输入 websocket 服务器地址，如：ws://mud.ren:8888</div><form onsubmit="return false;">
-						<input type="text" class="mudaddress" placeholder="ws://mud.ren:8888" value="wss://mud.ren:8888" autocomplete="off">
-						<input type="submit" class="mudsubmit">
-						</form>`;
-                dialog.getElementsByClassName('mudsubmit')[0].onclick = () => {
-                    console.log(dialog.getElementsByClassName('mudaddress')[0].value);
-                    dialog.close();
-                }
-                this.ApiMudDialog(dialog);
             }
 
             //WS连接
@@ -427,11 +436,11 @@
                     };
                     this.ws.onclose = (_e) => {
                         console.log(_e);
-                        this.OnCloseEventHandler();
+                        this.OnCloseEventHandler(url);
                     };
                     this.ws.onerror = (_e) => {
                         console.log(_e);
-                        this.OnCloseEventHandler();
+                        this.OnCloseEventHandler(url);
                     };
                 } else {
                     console.log("您的浏览器不支持 WebSocket!");
@@ -450,24 +459,44 @@
                 }
             }
 
-
-            //WS连接中断处理
-            OnCloseEventHandler() {
-
-            }
-
             //发送指令
-            async ApiSendCmd(strCmd) {
+            async _ApiSendCmd(strCmd) {
                 if (this.ws) {
                     let sCmd = '';
                     for (let variable in this.settings.variables) {
                         sCmd = sCmd.replace(new RegExp("\{\{" + variable + "\}\}", "igm"), this.settings.variables[variable]);
                     }
                     let sList = sCmd.split(';');
-
+                    let regLoop = /^#([0-9]+)(.+)/;
+                    let regVar = /^@([\S ]+)=([\S ]*)/;
                     for (let i = 0; i < sList.length; i++) {
-                        this.ws.send(sList[i] + "\n");
-                        await this.ApiSleep(200);
+                        switch (sList[i].charAt(0)) {
+                            //#开头作为循环次数
+                            case '#':
+                                if (regLoop.test(sList[i]) == false) {
+                                    break;
+                                }
+                                let loopTime = Number(sList[i].replace(regLoop, '$1'));
+                                let loopCmd = sList[i].replace(regLoop, '$2');
+                                loopCmd = loopCmd.trim(' ');
+                                for (let j = 0; j < loopTime; j++) {
+                                    this.ws.send(loopCmd + "\n");
+                                    await this.ApiSleep(200);
+                                }
+                                break;
+                            //@VAR=VALUE为变量赋值
+                            case '@':
+                                if (regVar.test(sList[i]) == false) {
+                                    break;
+                                }
+                                let varName = (sList[i].replace(regVar, '$1')).trim(' ');
+                                let varValue = (sList[i].replace(regVar, '$2')).trim(' ');
+                                this.ApiMudVar(varName, varValue);
+                                break;
+                            default:
+                                this.ws.send(sList[i] + "\n");
+                                await this.ApiSleep(200);
+                        }
                     }
                     this.OnSendEventHandler(strCmd);
                 } else {
@@ -475,92 +504,28 @@
                 }
             }
 
-            //发送指令结束 回调
-            OnSendEventHandler(strCmd) {
-
-            }
-
             //变量修改
             ApiMudVar(varName, varValue) {
-                this.settings.variables[varName] = varValue;
-            }
-
-            //删除变量
-            ApiMudVarDel(varName) {
-                if (this.settings.variables.hasOwnProperty(varName)) {
-                    delete this.settings.variables[varName];
+                if (varValue != null && varValue != undefined && varValue.length > 0) {
+                    this.settings.variables[varName] = varValue;
+                } else {
+                    if (this.settings.variables.hasOwnProperty(varName)) {
+                        delete this.settings.variables[varName];
+                    }
                 }
             }
 
             //Sleep await ApiSleep(1000) 
-            ApiSleep(time) {
+            ApiSleep(millisecond) {
                 return new Promise((resolve) => {
-                    setTimeout(resolve, time)
+                    setTimeout(resolve, millisecond)
                 })
             }
 
-            //添加控件信息
-            ApiAddControl(ctlName, ctlType, ctlAction) {
-                this.settings.controls[ctlName] = { type: ctlType, action: ctlAction };
-                this.OnAddControlEventHandler(ctlName);
-                this._CompileDynamicFunc({ type: 'controls', name: ctlName })
-            }
-
-            OnAddControlEventHandler(ctlName) {
-
-            }
-
-            //删除控件信息
-            ApiDelControl(ctlName) {
-                if (this.settings.controls.hasOwnProperty(ctlName)) {
-                    delete this.settings.controls[ctlName];
-                    this.OnDelControlEventHandler(ctlName);
-                    this._DeCompileDynamicFunc({ type: 'controls', ctlName: ctlName })
-                }
-            }
-
-            OnDelControlEventHandler(ctlName) {
-
-            }
-
-            //刷新全部控件
-            ApiReloadControl() {
-                for (let ctlName in this.settings.controls) {
-                    this.OnDelControlEventHandler(ctlName)
-                }
-                for (let ctlName in this.settings.controls) {
-                    this.OnAddControlEventHandler(ctlName)
-                }
-            }
-
-            //添加触发器
-            ApiAddTrigger(triggerName, triggerAction) {
-                this.settings.triggers[triggerName] = { valid: false, action: triggerAction };
-                this._CompileDynamicFunc({ type: 'triggers', name: triggerName })
-            }
-            //删除触发器
-            ApiDelTrigger(triggerName, triggerAction) {
-                if (this.settings.triggers.hasOwnProperty(triggerName)) {
-                    delete this.settings.triggers[triggerName];
-                    this._DeCompileDynamicFunc({ type: 'triggers', name: triggerName })
-                }
-            }
             //设置触发器开关
-            ApiSetTrigger(triggerName, flag = false) {
-                if (this.settings.trigger.hasOwnProperty(triggerName)) {
-                    this.settings.trigger[triggerName].valid = flag;
-                }
-            }
-
-            //添加定时器
-            ApiAddTimer(timerName, timerAction) {
-                this.settings.timers[timerName] = { valid: false, action: timerAction };
-            }
-
-            //删除定时器
-            ApiDelTimer(timerName) {
-                if (this.settings.timers.hasOwnProperty(timerName)) {
-                    delete this.settings.timers[timerName];
+            ApiSetTrigger(actionName, flag = false) {
+                if (this.settings.trigger.hasOwnProperty(actionName)) {
+                    this.settings.trigger[actionName].valid = flag;
                 }
             }
 
@@ -580,22 +545,154 @@
                 }
             }
 
+            //设置点击项目
+            ApiSetRule(info = { type: null, element: null, group: null, actionName: null, action: null }) {
+                switch (info.type) {
+                    case 'praviteRule':
+                        if (info.action != null && info.action != undefined && info.action.length > 0) {
+                            if (!this.settings.elementRules.pravite.hasOwnProperty(info.element)) {
+                                this.settings.elementRules.pravite[info.element] = {};
+                            }
+                            if (info.actionName != null) {
+                                this.settings.elementRules.pravite[info.element][info.actionName] = info.action;
+                            }
+                        }
+                        else {
+                            if (this.settings.elementRules.pravite.hasOwnProperty(info.element)) {
+                                if (info.actionName != null && this.settings.elementRules.pravite[info.element].hasOwnProperty(info.actionName)) {
+                                    delete this.settings.elementRules.pravite[info.element][info.actionName];
+                                } else {
+                                    delete this.settings.elementRules.pravite[info.element];
+                                }
+                            }
+                        }
+                        break;
+                    case 'publicRule':
+                        if (info.action != null && info.action != undefined && info.action.length > 0) {
+                            this.settings.elementRules.public[info.actionName] = info.action;
+                        }
+                        else {
+                            if (this.settings.elementRules.public.hasOwnProperty(info.actionName)) {
+                                delete this.settings.elementRules.pravite[info.actionName];
+                            }
+                        }
+                        break;
+                    case 'groupRule':
+                        if (info.action != null && info.action != undefined && info.action.length > 0) {
+                            if (!this.settings.elementRules.group.hasOwnProperty(info.group)) {
+                                this.settings.elementRules.group[info.group] = {}
+                            }
+                            this.settings.elementRules.group[info.group][info.actionName] = info.action;
+                        } else {
+                            if (this.settings.elementRules.group.hasOwnProperty(info.group)) {
+                                if (info.actionName != null && this.settings.elementRules.group[info.group].hasOwnProperty(info.actionName)) {
+                                    delete this.settings.elementRules.group[info.group][info.actionName];
+                                }
+                                else {
+                                    delete this.settings.elementRules.group[info.group];
+                                }
+                            }
+                        }
+                        break;
+                    case 'setGroup':
+                        if (info.group != null && info.group != undefined && info.group.length > 0) {
+                            if (!this.settings.elementRules.groupInfo.hasOwnProperty(info.element)) {
+                                this.settings.elementRules.groupInfo[info.element] = {};
+                            }
+                            this.settings.elementRules.groupInfo[info.element][info.group] = 'group';
+                        } else {
+                            if (this.settings.elementRules.groupInfo.hasOwnProperty(info.element)) {
+                                delete this.settings.elementRules.groupInfo[info.element];
+                            }
+                        }
+                        break;
+                    case 'controlRule':
+                        if (info.action != null && info.action != undefined && info.action.length > 0) {
+                            this.settings.controls[info.actionName] = { group: info.group, action: info.action };
+                            this.OnAddControlEventHandler(info.actionName);
+                            this._CompileDynamicFunc({ type: 'controls', name: info.actionName })
+                        } else {
+                            if (this.settings.controls.hasOwnProperty(info.actionName)) {
+                                delete this.settings.controls[info.actionName];
+                                this.OnDelControlEventHandler(info.actionName);
+                                this._DeCompileDynamicFunc({ type: 'controls', name: info.actionName })
+                            }
+                        }
+                        break;
+                    case 'triggerRule':
+                        if (info.action != null && info.action != undefined && info.action.length > 0) {
+                            this.settings.triggers[info.actionName] = { valid: false, action: info.action };
+                            this._CompileDynamicFunc({ type: 'triggers', name: info.actionName })
+                        } else {
+                            if (this.settings.triggers.hasOwnProperty(info.actionName)) {
+                                delete this.settings.triggers[info.actionName];
+                                this._DeCompileDynamicFunc({ type: 'triggers', name: info.actionName })
+                            }
+                        }
+                        break;
+                    case 'timerRule':
+                        if (info.action != null && info.action != undefined && info.action.length > 0) {
+                            this.settings.timers[info.actionName] = { valid: false, action: info.action };
+                        } else {
+                            if (this.settings.timers.hasOwnProperty(info.actionName)) {
+                                delete this.settings.timers[info.actionName];
+                            }
+                        }
+                        break;
 
-            //编译动态函数
+                    default:
+                        break;
+                }
+            }
+
+            //执行命令 ~~开头的为JS脚本 其余的直接发送
+            ApiScript(action, cmdStr = null) {
+                let tmpAction = action;
+                if (tmpAction.slice(0, 2) == '~~') {
+                    tmpAction = (tmpAction.trimLeft('~')).replace(/\{\{cmd\}\}/igm, cmdStr);
+                    let script = "async()=>{let mud=self._mud_;let cmd=`" + cmdStr + "`;" + action + ";}";
+                    this._ApiMudScript(script);
+                }
+                else {
+                    tmpAction = tmpAction.replace(/\{\{cmd\}\}/igm, cmdStr);
+                    this._ApiSendCmd(tmpAction);
+                }
+            }
+
+            //编译动态函数 ~~开头的为JS脚本 其余的直接发送
             async _CompileDynamicFunc(info = { type: '', name: '' }) {
                 let script = '';
+                let tmpAction = '';
                 switch (info.type) {
                     case 'triggers':
-                        script = "self._mud_.runTimeFuncList.triggers" + info.name + "=(msg)=>{let mud=self._mud_;" + this.settings.triggers[info.name].action + "}"
-                        await this.ApiMudScript(script);
+                        tmpAction = this.settings.triggers[info.name].action;
+                        if (tmpAction.slice(0, 2) == '~~') {
+                            tmpAction = tmpAction.trimLeft('~');
+                            script = "self._mud_.runTimeFuncList.triggers" + info.name + "=async(msg)=>{let mud=self._mud_;" + tmpAction + ";}"
+                            await this._ApiMudScript(script);
+                        } else {
+                            this.runTimeFuncList.triggers[info.name] = () => { this._ApiSendCmd(tmpAction) };
+                        }
                         break;
                     case 'controls':
-                        script = "self._mud_.runTimeFuncList.controls" + info.name + "=()=>{let mud=self._mud_;" + this.settings.controls[info.name].action + "}"
-                        await this.ApiMudScript(script);
+                        tmpAction = this.settings.controls[info.name].action;
+                        if (tmpAction.slice(0, 2) == '~~') {
+                            tmpAction = tmpAction.trimLeft('~');
+                            script = "self._mud_.runTimeFuncList.controls" + info.name + "=async()=>{let mud=self._mud_;" + tmpAction + ";}"
+                            await this._ApiMudScript(script);
+                        } else {
+                            this.runTimeFuncList.controls[info.name] = () => { this._ApiSendCmd(tmpAction) };
+                        }
                         break;
                     case 'timer':
-                        script = "self._mud_.runTimeFuncList.timers" + info.name + "=()=>{let mud=self._mud_;" + this.settings.timers[info.name].action + "}"
-                        await this.ApiMudScript(script);
+                        tmpAction = this.settings.timers[info.name].action;
+                        if (tmpAction.slice(0, 2) == '~~') {
+                            tmpAction = tmpAction.trimLeft('~');
+                            script = "self._mud_.runTimeFuncList.timers" + info.name + "=async()=>{let mud=self._mud_;" + tmpAction + ";}"
+                            await this._ApiMudScript(script);
+                        } else {
+                            this.runTimeFuncList.timers[info.name] = () => { this._ApiSendCmd(tmpAction) };
+                        }
                         break;
                     default: break;
                 }
@@ -616,15 +713,57 @@
                 }
             }
 
-            //测试
-            ApiTest() {
-                self._mud_ = this;
-                debugger;
-                let mudScript = self.document.createElement('script');
-                mudScript.innerText = 'console.log(self._mud_)';
-                self.document.body.appendChild(mudScript);
-                self.document.body.removeChild(mudScript);
+            //WS连接中断处理
+            OnCloseEventHandler(url) {
+
             }
+
+            //发送指令结束处理
+            OnSendEventHandler(strCmd) {
+
+            }
+
+            //添加控件结束处理
+            OnAddControlEventHandler(actionName) {
+
+            }
+
+            //删除控件结束处理
+            OnDelControlEventHandler(actionName) {
+
+            }
+
+            //创建连接对话框
+            ApiConnectDialog() {
+                let dialog = document.createElement('div');
+                dialog.innerHTML = `<div>请输入 websocket 服务器地址，如：ws://mud.ren:8888</div><form onsubmit="return false;">
+						<input type="text" id="mudaddress" placeholder="ws://mud.ren:8888" value="wss://mud.ren:8888" autocomplete="off">
+						<input type="submit" id="mudsubmit">
+						</form>`;
+                dialog.querySelector('#mudsubmit').onclick = () => {
+                    console.log(dialog.querySelector('#mudaddress').value);
+                    dialog.close();
+                }
+                this.ApiMudDialog(dialog);
+            }
+
+            //点击激活效果
+            ApiElementActive(cmdStr) {
+                let dialog = document.createElement('div');
+                dialog.querySelector('#aaa');
+                dialog.getElementsByClassName('mudsubmit')[0].onclick = () => {
+                    console.log(dialog.getElementsByClassName('mudaddress')[0].value);
+                    dialog.close();
+                }
+                this.ApiMudDialog(dialog);
+            }
+
+            //初始化
+            ApiMudInit() {
+
+            }
+
+
         }
 
     </script>
