@@ -42,9 +42,9 @@
 ### 4. 主屏幕元素点击事件
 在设置脚本的时候添加了一个内置变量{{cmd}},可以指代被点击的内容本身
 ### 5. JS语法
-在普通语法前面加入~~ 就判断为JS语法,JS中加入变量**mud**以及**cmd**,**mud**表示当前实例,**cmd**表示调用元素本身(点击元素以外为null)
+在普通语法前面加入~~ 就判断为JS语法,JS中加入变量**thisMud**以及**thisCmd**,**thisMud**表示当前实例,**thisCmd**表示调用元素本身(点击元素以外为null)
 * 例如:
->~~mud.ApiScript(cmd);//发送当前指令
+>~~thisMud.ApiScript(thisCmd);//发送当前指令
 ---
 ## JSAPI
 这里只列出常用的,部分没在这里注明的还是需要查看源代码
@@ -90,7 +90,7 @@ this.ApiMudDialog(dialog);
 ### **ApiMudInit()** 初始化
 * 从localstorage放入settings变量并初始化触发器\定时器\控件
 ### **ApiSetTrigger(actionName, flag = false)** 设置触发器开关
-### **async ApiSetTimer(timerName, flag = false, delay = 1000) ** 设置定时器开关
+### **async ApiSetTimer(timerName, flag = false, delay = 1000)** 设置定时器开关
 ### **ApiSetRule(info)** 触发器\定时器\控件\点击事件等增删改
 >函数原型ApiSetRule(info = { type: null, element: null, group: null, actionName: null, action: null })
 
