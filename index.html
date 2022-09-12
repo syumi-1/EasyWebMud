@@ -105,7 +105,7 @@
         }
 
         .container_bottom2 input[type="text"] {
-            width: 75%;
+            width: 70%;
         }
 
         .container_bottom2 input[type="submit"] {
@@ -148,10 +148,24 @@
             height: 20vh;
         }
 
+        .container_extra {
+            border: none;
+            right: 2vh;
+            bottom: 55vh;
+            position: fixed;
+        }
+
+        .container_extra>div {
+            border: none !important;
+            font-weight: bold;
+            margin-bottom: 2vh;
+        }
+
         .rainbow div {
             user-select: none;
             cursor: pointer;
             box-sizing: border-box;
+            border-radius: 1vh;
             opacity: 0.7;
         }
 
@@ -199,21 +213,12 @@
             color: tomato;
         }
 
-        #mud {
+        .mud {
             margin: 0;
             padding: 0;
             white-space: pre;
             font-family: nsimsun, "Courier New", Courier, monospace;
             color: white;
-        }
-
-        .mud-elements {
-            cursor: pointer;
-        }
-
-        .mud-elements:hover {
-            text-decoration: underline;
-            color: aqua;
         }
 
         .mud-pop-shadow {
@@ -230,26 +235,83 @@
         .mud-pop-dialog {
             position: fixed;
             margin: auto;
-            padding: 0.5em;
             left: 0;
             right: 0;
             top: 0;
             bottom: 0;
-            width: 80vw;
-            height: 60vh;
+            width: 70vw;
+            height: 75vh;
             overflow-y: auto;
+            overflow-x: hidden;
             opacity: 1;
-            background-color: rgb(24, 26, 27);
+            background-color: rgb(26, 26, 26);
             border-radius: 3px;
             box-shadow: 10px 10px 10px rgb(0 0 0 / 80%);
             z-index: 10001;
-            color: rgb(185, 179, 170);
-            font-size: 2.5vh;
+            color: rgb(200, 200, 200);
+            font-size: 2.1vh;
         }
 
         .mud-pop-dialog * {
-            font-size: 2.5vh;
-            margin: 0.5em;
+            margin: 0;
+        }
+
+        .mud-pop-dialog .mud-pop-dialog-div {
+            padding: 0.7em 1em 0.7em 1em;
+            color: rgb(200, 200, 200);
+            background: rgb(26, 26, 26);
+            font-size: 2.1vh;
+        }
+
+        .mud-pop-dialog .mud-pop-dialog-title {
+            padding: 0.7em 1em 0.7em 1em;
+            font-size: 3vh;
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .mud-pop-dialog .mud-pop-dialog-button {
+            padding: 0.7em 1em 0.7em 1em;
+            user-select: none;
+            cursor: pointer;
+            background: linear-gradient(to left, rgb(26, 26, 26) 50%, rgb(60, 60, 60) 50%) right;
+            background-size: 200%;
+        }
+
+        .mud-pop-dialog .mud-pop-dialog-button:active {
+            transition: .2s ease-out;
+            background-position: left;
+        }
+
+        .mud-pop-dialog input {
+            border: none;
+            background: rgb(26, 26, 26);
+            color: rgb(200, 200, 200);
+            font-size: 2.1vh;
+            width: 100%;
+            outline: none;
+        }
+
+        .mud-pop-dialog input[type="text"] {
+            color: rgb(200, 255, 200);
+            padding: 0.7em 1em 0.7em 1em;
+            width: calc(100% - 1.4em);
+        }
+
+        .mud-pop-dialog input[type="submit"],
+        .mud-pop-dialog input[type="button"] {
+            font-weight: bold;
+            color: rgb(255, 200, 200);
+            text-decoration: underline;
+        }
+
+        .mud-pop-dialog hr {
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            border: none;
+            height: 1px;
+            background-color: black;
         }
     </style>
 </head>
@@ -263,7 +325,13 @@
             <div id="mud_bottom"></div>
             <p></p>
         </div>
+    </div>
 
+    <div class="container container_extra rainbow">
+        <div>测</div>
+        <div>试</div>
+        <div>按</div>
+        <div>扭</div>
     </div>
 
     <div class="container container_sidebar rainbow">
@@ -322,18 +390,7 @@
     <script>
         class mud {
             constructor() {
-                this.settings = {
-                    variables: {},
-                    elementRules: {
-                        pravite: {},
-                        public: {},
-                        group: {},
-                        groupInfo: {}
-                    },
-                    triggers: {},
-                    controls: {},
-                    timers: {}
-                };
+                this.settings = { variables: {}, elementRules: { pravite: {}, public: {}, group: {} }, triggers: {}, controls: {}, timers: {} };
                 this.runTimeFuncList = { triggers: {}, controls: {}, timers: {}, timersStatus: {} };
                 this.ws = undefined;
             }
@@ -377,7 +434,6 @@
 
             //创建对话框
             ApiMudDialog(dialogItem) {
-                console.log(this.settings);
                 let dialog = dialogItem;
                 let shadow = document.createElement('div');
                 dialog.classList.add('mud-pop-dialog');
@@ -390,19 +446,25 @@
 
             //创建动态JS脚本
             _ApiMudScript(sc) {
-                return new Promise((resolve) => {
+                return new Promise((resolve, reject) => {
                     try {
                         self._mud_ = this;
                         let mudScript = self.document.createElement('script');
-                        mudScript.innerText = sc;
-                        mudScript.onload = () => {
-                            resolve();
-                        }
+                        mudScript.setAttribute("type", "text/javascript");
+                        mudScript.setAttribute("async", true);
+                        mudScript.innerHTML = sc;
+                        mudScript.addEventListener("error", (ev) => {
+                            reject({
+                                status: false,
+                                message: `读取指令失败`
+                            });
+                        });
                         self.document.body.appendChild(mudScript);
                         self.document.body.removeChild(mudScript);
+                        resolve();
                     } catch (error) {
                         console.log(error);
-                        resolve();
+                        reject(error);
                     }
                 })
             }
@@ -478,7 +540,7 @@
                                 }
                                 let loopTime = Number(sList[i].replace(regLoop, '$1'));
                                 let loopCmd = sList[i].replace(regLoop, '$2');
-                                loopCmd = loopCmd.trim(' ');
+                                loopCmd = loopCmd.trim();
                                 for (let j = 0; j < loopTime; j++) {
                                     this.ws.send(loopCmd + "\n");
                                     await this.ApiSleep(200);
@@ -489,8 +551,8 @@
                                 if (regVar.test(sList[i]) == false) {
                                     break;
                                 }
-                                let varName = (sList[i].replace(regVar, '$1')).trim(' ');
-                                let varValue = (sList[i].replace(regVar, '$2')).trim(' ');
+                                let varName = (sList[i].replace(regVar, '$1')).trim();
+                                let varValue = (sList[i].replace(regVar, '$2')).trim();
                                 this.ApiMudVar(varName, varValue);
                                 break;
                             default:
@@ -527,6 +589,7 @@
                 if (this.settings.trigger.hasOwnProperty(actionName)) {
                     this.settings.trigger[actionName].valid = flag;
                 }
+                this.ApiSaveSetting();
             }
 
             //设置定时器开关
@@ -551,16 +614,16 @@
                     case 'praviteRule':
                         if (info.action != null && info.action != undefined && info.action.length > 0) {
                             if (!this.settings.elementRules.pravite.hasOwnProperty(info.element)) {
-                                this.settings.elementRules.pravite[info.element] = {};
+                                this.settings.elementRules.pravite[info.element] = { group: {}, action: {} };
                             }
                             if (info.actionName != null) {
-                                this.settings.elementRules.pravite[info.element][info.actionName] = info.action;
+                                (this.settings.elementRules.pravite[info.element]).action[info.actionName] = info.action;
                             }
                         }
                         else {
                             if (this.settings.elementRules.pravite.hasOwnProperty(info.element)) {
-                                if (info.actionName != null && this.settings.elementRules.pravite[info.element].hasOwnProperty(info.actionName)) {
-                                    delete this.settings.elementRules.pravite[info.element][info.actionName];
+                                if (info.actionName != null && (this.settings.elementRules.pravite[info.element]).action.hasOwnProperty(info.actionName)) {
+                                    delete (this.settings.elementRules.pravite[info.element]).action[info.actionName];
                                 } else {
                                     delete this.settings.elementRules.pravite[info.element];
                                 }
@@ -573,7 +636,7 @@
                         }
                         else {
                             if (this.settings.elementRules.public.hasOwnProperty(info.actionName)) {
-                                delete this.settings.elementRules.pravite[info.actionName];
+                                delete this.settings.elementRules.public[info.actionName];
                             }
                         }
                         break;
@@ -596,13 +659,13 @@
                         break;
                     case 'setGroup':
                         if (info.group != null && info.group != undefined && info.group.length > 0) {
-                            if (!this.settings.elementRules.groupInfo.hasOwnProperty(info.element)) {
-                                this.settings.elementRules.groupInfo[info.element] = {};
+                            if (!this.settings.elementRules.pravite.hasOwnProperty(info.element)) {
+                                this.settings.elementRules.pravite[info.element] = { group: {}, action: {} };
                             }
-                            this.settings.elementRules.groupInfo[info.element][info.group] = 'group';
+                            (this.settings.elementRules.pravite[info.element]).group[info.group] = 'group';
                         } else {
-                            if (this.settings.elementRules.groupInfo.hasOwnProperty(info.element)) {
-                                delete this.settings.elementRules.groupInfo[info.element];
+                            if (this.settings.elementRules.pravite.hasOwnProperty(info.element)) {
+                                (this.settings.elementRules.pravite[info.element]).group = {};
                             }
                         }
                         break;
@@ -639,18 +702,18 @@
                             }
                         }
                         break;
-
                     default:
                         break;
                 }
+                this.ApiSaveSetting();
             }
 
             //执行命令 ~~开头的为JS脚本 其余的直接发送
             ApiScript(action, cmdStr = null) {
                 let tmpAction = action;
                 if (tmpAction.slice(0, 2) == '~~') {
-                    tmpAction = (tmpAction.trimLeft('~')).replace(/\{\{cmd\}\}/igm, cmdStr);
-                    let script = "async()=>{let mud=self._mud_;let cmd=`" + cmdStr + "`;" + action + ";}";
+                    tmpAction = tmpAction.slice(2);
+                    let script = "(async()=>{let thisMud=self._mud_;let thisCmd=`" + cmdStr + "`;" + tmpAction + ";})()";
                     this._ApiMudScript(script);
                 }
                 else {
@@ -667,8 +730,8 @@
                     case 'triggers':
                         tmpAction = this.settings.triggers[info.name].action;
                         if (tmpAction.slice(0, 2) == '~~') {
-                            tmpAction = tmpAction.trimLeft('~');
-                            script = "self._mud_.runTimeFuncList.triggers" + info.name + "=async(msg)=>{let mud=self._mud_;" + tmpAction + ";}"
+                            tmpAction = tmpAction.slice(2);
+                            script = "self._mud_.runTimeFuncList.triggers" + info.name + "=async(msg)=>{let thisMud=self._mud_;" + tmpAction + ";}"
                             await this._ApiMudScript(script);
                         } else {
                             this.runTimeFuncList.triggers[info.name] = () => { this._ApiSendCmd(tmpAction) };
@@ -677,8 +740,8 @@
                     case 'controls':
                         tmpAction = this.settings.controls[info.name].action;
                         if (tmpAction.slice(0, 2) == '~~') {
-                            tmpAction = tmpAction.trimLeft('~');
-                            script = "self._mud_.runTimeFuncList.controls" + info.name + "=async()=>{let mud=self._mud_;" + tmpAction + ";}"
+                            tmpAction = tmpAction.slice(2);
+                            script = "self._mud_.runTimeFuncList.controls" + info.name + "=async()=>{let thisMud=self._mud_;" + tmpAction + ";}"
                             await this._ApiMudScript(script);
                         } else {
                             this.runTimeFuncList.controls[info.name] = () => { this._ApiSendCmd(tmpAction) };
@@ -687,8 +750,8 @@
                     case 'timer':
                         tmpAction = this.settings.timers[info.name].action;
                         if (tmpAction.slice(0, 2) == '~~') {
-                            tmpAction = tmpAction.trimLeft('~');
-                            script = "self._mud_.runTimeFuncList.timers" + info.name + "=async()=>{let mud=self._mud_;" + tmpAction + ";}"
+                            tmpAction = tmpAction.slice(2);
+                            script = "self._mud_.runTimeFuncList.timers" + info.name + "=async()=>{let thisMud=self._mud_;" + tmpAction + ";}"
                             await this._ApiMudScript(script);
                         } else {
                             this.runTimeFuncList.timers[info.name] = () => { this._ApiSendCmd(tmpAction) };
@@ -713,6 +776,259 @@
                 }
             }
 
+            //创建连接对话框
+            ApiDlgConnect() {
+                let dialog = self.document.createElement('div');
+                dialog.innerHTML = `<div class="mud-pop-dialog-title">连接服务器</div>
+                        <div class="mud-pop-dialog-div">请输入 websocket 服务器地址</div>
+                        <form onsubmit="return false;">
+						<input type="text" id="mudaddress" placeholder="ws://mud.ren:8888" value="wss://mud.ren:8888" autocomplete="off">
+						<input type="submit" id="mudsubmit" class="mud-pop-dialog-button" value="开始连接">
+						</form>
+                        `;
+                dialog.querySelector('#mudsubmit').onclick = () => {
+                    console.log(dialog.querySelector('#mudaddress').value);
+                    dialog.close();
+                }
+                this.ApiMudDialog(dialog);
+            }
+
+            //项目分组对话框
+            ApiDlgElementGroup(cmdStr) {
+                let dialog = self.document.createElement('div');
+                let title = self.document.createElement('div');
+                title.className = 'mud-pop-dialog-title';
+                title.innerText = '请选择将' + cmdStr + '加入到的分组';
+                dialog.appendChild(title);
+                dialog.appendChild(self.document.createElement('hr'));
+                for (let pActionName in this.settings.elementRules.group) {
+                    if (this.settings.elementRules.pravite.hasOwnProperty(cmdStr) &&
+                        (this.settings.elementRules.pravite[cmdStr]).group.hasOwnProperty(pActionName)) {
+                        continue;
+                    }
+                    let pButton = self.document.createElement('div');
+                    pButton.className = 'mud-pop-dialog-button';
+                    pButton.innerText = pActionName;
+                    pButton.addEventListener('click', () => {
+                        this.ApiSetRule({ type: 'setGroup', element: cmdStr, group: pActionName })
+                        dialog.close();
+                        this.ApiDlgElementGroup(cmdStr);
+                    }, false)
+                    dialog.appendChild(pButton);
+                }
+                let pBtnDel = self.document.createElement('div');
+                pBtnDel.className = 'mud-pop-dialog-button';
+                pBtnDel.innerText = '清空分组信息';
+                pBtnDel.addEventListener('click', () => {
+                    this.ApiSetRule({ type: 'setGroup', element: cmdStr, group: null })
+                    dialog.close();
+                    this.ApiDlgElementGroup(cmdStr);
+                }, false)
+                dialog.appendChild(pBtnDel);
+                this.ApiMudDialog(dialog);
+            }
+            //管理中心对话框
+            ApiDlgControlCenter() {
+                let dialog = self.document.createElement('div');
+                let title = self.document.createElement('div');
+                title.className = 'mud-pop-dialog-title';
+                title.innerText = '管理中心';
+                dialog.appendChild(title);
+                dialog.appendChild(self.document.createElement('hr'));
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '添加触发器';
+                    pBtn.addEventListener('click', () => {
+                        let usrInput = prompt("请输入要添加的触发器名"); if (usrInput == null) return;
+                        let usrInput1 = prompt("请输入要添加的触发器语法"); if (usrInput1 == null) return;
+                        if (usrInput != null && usrInput1 != null) {
+                            this.ApiSetRule({ type: 'triggerRule', actionName: usrInput, action: usrInput1 });
+                            alert('添加成功');
+                        }
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '添加定时器';
+                    pBtn.addEventListener('click', () => {
+                        let usrInput = prompt("请输入要添加的定时器名"); if (usrInput == null) return;
+                        let usrInput1 = prompt("请输入要添加的定时器语法"); if (usrInput1 == null) return;
+                        if (usrInput != null && usrInput1 != null) {
+                            this.ApiSetRule({ type: 'timerRule', actionName: usrInput, action: usrInput1 });
+                            alert('添加成功');
+                        }
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '添加控件指令';
+                    pBtn.addEventListener('click', () => {
+                        let usrInput = prompt("请输入语法描述"); if (usrInput == null) return;
+                        let usrInput1 = prompt("请输入语法"); if (usrInput1 == null) return;
+                        let usrInput2 = prompt("请输入组名(左0下1右2)"); if (usrInput2 == null) return;
+                        if (usrInput != null && usrInput1 != null && usrInput2 != null) {
+                            this.ApiSetRule({ type: 'controlRule', actionName: usrInput, action: usrInput1, group: usrInput2 });
+                            alert('添加成功');
+                        }
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '添加分组指令';
+                    pBtn.addEventListener('click', () => {
+                        let usrInput = prompt("请输入语法描述"); if (usrInput == null) return;
+                        let usrInput1 = prompt("请输入语法"); if (usrInput1 == null) return;
+                        let usrInput2 = prompt("请输入组名"); if (usrInput2 == null) return;
+                        if (usrInput != null && usrInput1 != null && usrInput2 != null) {
+                            this.ApiSetRule({ type: 'groupRule', actionName: usrInput, action: usrInput1, group: usrInput2 });
+                            alert('添加成功');
+                        }
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                dialog.appendChild(self.document.createElement('hr'));
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '删除触发器';
+                    pBtn.addEventListener('click', () => {
+                        let usrInput = prompt("请输入要添加的触发器名"); if (usrInput == null) return;
+                        if (usrInput != null) {
+                            this.ApiSetRule({ type: 'triggerRule', actionName: usrInput, action: null });
+                            alert('删除成功');
+                        }
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '删除定时器';
+                    pBtn.addEventListener('click', () => {
+                        let usrInput = prompt("请输入要添加的定时器名"); if (usrInput == null) return;
+                        if (usrInput != null) {
+                            this.ApiSetRule({ type: 'timerRule', actionName: usrInput, action: null });
+                            alert('删除成功');
+                        }
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '删除控件';
+                    pBtn.addEventListener('click', () => {
+                        let usrInput = prompt("请输入控件语法描述"); if (usrInput == null) return;
+                        if (usrInput != null) {
+                            this.ApiSetRule({ type: 'controlRule', actionName: usrInput, action: null });
+                            alert('删除成功');
+                        }
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '删除分组';
+                    pBtn.addEventListener('click', () => {
+                        let usrInput = prompt("请输入组名"); if (usrInput == null) return;
+                        if (usrInput != null) {
+                            this.ApiSetRule({ type: 'groupRule', group: usrInput, actionName: null, action: null });
+                            alert('删除成功');
+                        }
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '删除项目绑定';
+                    pBtn.addEventListener('click', () => {
+                        let usrInput = prompt("请输入要删除的项目绑定名"); if (usrInput == null) return;
+                        if (usrInput != null) {
+                            this.ApiSetRule({ type: 'praviteRule', element: usrInput, group: null });
+                            alert('删除成功');
+                        }
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                dialog.appendChild(self.document.createElement('hr'));
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '初始化全部设定';
+                    pBtn.addEventListener('click', () => {
+                        let usrInput = prompt("请输入 confirm 确认初始化全部设定"); if (usrInput == null) return;
+                        if (usrInput == 'confirm') {
+                            this.settings = { variables: {}, elementRules: { pravite: {}, public: {}, group: {} }, triggers: {}, controls: {}, timers: {} };
+                            this.ApiSaveSetting();
+                            this.ApiMudInit();
+                            alert('初始化完成');
+                        }
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                this.ApiMudDialog(dialog);
+            }
+
+            //项目点击对话框
+            ApiDlgElementActive(cmdStr) {
+                if (this.settings.elementRules.pravite.hasOwnProperty(cmdStr) && (this.settings.elementRules.pravite[cmdStr]).action.hasOwnProperty('direct')) {
+                    this.ApiScript((this.settings.elementRules.pravite[cmdStr]).action['direct'], cmdStr);
+                    return;
+                }
+                let dialog = self.document.createElement('div');
+                let title = self.document.createElement('div');
+                title.className = 'mud-pop-dialog-title';
+                title.innerText = cmdStr;
+                dialog.appendChild(title);
+                dialog.appendChild(self.document.createElement('hr'));
+                if (this.settings.elementRules.pravite.hasOwnProperty(cmdStr)) {
+                    for (let pActionName in (this.settings.elementRules.pravite[cmdStr]).action) {
+                        let pButton = self.document.createElement('div');
+                        pButton.className = 'mud-pop-dialog-button';
+                        pButton.innerText = pActionName;
+                        pButton.addEventListener('click', () => {
+                            this.ApiScript((this.settings.elementRules.pravite[cmdStr]).action[pActionName], cmdStr);
+                            dialog.close();
+                        }, false)
+                        dialog.appendChild(pButton);
+                    }
+                    for (let pGroup in (this.settings.elementRules.pravite[cmdStr]).group) {
+                        if (this.settings.elementRules.group.hasOwnProperty(pGroup)) {
+                            for (let pActionName in this.settings.elementRules.group[pGroup]) {
+                                let pButton = self.document.createElement('div');
+                                pButton.className = 'mud-pop-dialog-button';
+                                pButton.innerText = pActionName;
+                                pButton.addEventListener('click', () => {
+                                    this.ApiScript(this.settings.elementRules.group[pGroup][pActionName], cmdStr);
+                                    dialog.close();
+                                }, false)
+                                dialog.appendChild(pButton);
+                            }
+                        }
+                    }
+                }
+                for (let pActionName in this.settings.elementRules.public) {
+                    let pButton = self.document.createElement('div');
+                    pButton.className = 'mud-pop-dialog-button';
+                    pButton.innerText = pActionName;
+                    pButton.addEventListener('click', () => {
+                        this.ApiScript(this.settings.elementRules.public[pActionName], cmdStr);
+                        dialog.close();
+                    }, false)
+                    dialog.appendChild(pButton);
+                }
+                this.ApiMudDialog(dialog);
+            }
+
             //WS连接中断处理
             OnCloseEventHandler(url) {
 
@@ -733,38 +1049,21 @@
 
             }
 
-            //创建连接对话框
-            ApiConnectDialog() {
-                let dialog = document.createElement('div');
-                dialog.innerHTML = `<div>请输入 websocket 服务器地址，如：ws://mud.ren:8888</div><form onsubmit="return false;">
-						<input type="text" id="mudaddress" placeholder="ws://mud.ren:8888" value="wss://mud.ren:8888" autocomplete="off">
-						<input type="submit" id="mudsubmit">
-						</form>`;
-                dialog.querySelector('#mudsubmit').onclick = () => {
-                    console.log(dialog.querySelector('#mudaddress').value);
-                    dialog.close();
-                }
-                this.ApiMudDialog(dialog);
-            }
-
-            //点击激活效果
-            ApiElementActive(cmdStr) {
-                let dialog = document.createElement('div');
-                dialog.querySelector('#aaa');
-                dialog.getElementsByClassName('mudsubmit')[0].onclick = () => {
-                    console.log(dialog.getElementsByClassName('mudaddress')[0].value);
-                    dialog.close();
-                }
-                this.ApiMudDialog(dialog);
-            }
-
             //初始化
             ApiMudInit() {
-
+                this.ApiSetRule({
+                    type: 'publicRule', actionName: '添加行为', action: `~~
+                    let a = prompt("请输入语法描述(输入direct则点击即触发)", 'direct'); if (a == null) return;
+                    let b = prompt("请输入语法", '{{cmd}}'); if (b == null) return;
+                    thisMud.ApiSetRule({type:'praviteRule',element:thisCmd,actionName:a,action:b});
+                `});
+                this.ApiSetRule({
+                    type: 'publicRule', actionName: '管理分组', action: `~~
+                    thisMud.ApiDlgElementGroup(thisCmd);
+                `});
             }
-
-
         }
+        
 
     </script>
 </body>
