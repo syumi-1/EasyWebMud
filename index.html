@@ -438,14 +438,58 @@
             //创建对话框
             ApiMudDialog(dialogItem) {
                 let dialog = dialogItem;
-                let shadow = document.createElement('div');
+                let shadow = self.document.createElement('div');
                 dialog.classList.add('mud-pop-dialog');
                 shadow.className = 'mud-pop-shadow';
-                dialog.close = () => { document.body.removeChild(shadow); document.body.removeChild(dialog); };
-                shadow.addEventListener('click', () => { document.body.removeChild(shadow); document.body.removeChild(dialog); }, false);
-                document.body.append(shadow);
-                document.body.append(dialog);
+                dialog.close = () => { self.document.body.removeChild(shadow); self.document.body.removeChild(dialog); };
+                shadow.addEventListener('click', () => { self.document.body.removeChild(shadow); self.document.body.removeChild(dialog); }, false);
+                self.document.body.append(shadow);
+                self.document.body.append(dialog);
             }
+
+            //设置窗口可移动
+            ApiMudMoveable(windowItem) {
+                let lastX, lastY;
+                windowItem.onmousedown = function (e) {
+                    e.preventDefault();
+                    windowItem.style.opacity = .5;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    self.document.addEventListener('mousemove', onMouseMove);
+                    self.document.addEventListener('mouseup', onMouseUp);
+                    function onMouseMove(e) {
+                        e.preventDefault();
+                        windowItem.style.left = (windowItem.offsetLeft - (lastX - e.clientX)) + "px";
+                        windowItem.style.top = (windowItem.offsetTop - (lastY - e.clientY)) + "px";
+                        lastX = e.clientX;
+                        lastY = e.clientY;
+                    }
+                    function onMouseUp() {
+                        e.preventDefault();
+                        windowItem.style.opacity = 1;
+                        self.document.removeEventListener('mousemove', onMouseMove);
+                        self.document.removeEventListener('mouseup', onMouseUp);
+                    }
+                }
+                windowItem.ontouchstart = function (e) {
+                    e.preventDefault();
+                    windowItem.style.opacity = .5;
+                    lastX = e.touches[0].clientX;
+                    lastY = e.touches[0].clientY;
+                    windowItem.ontouchmove = function (e) {
+                        e.preventDefault();
+                        windowItem.style.left = (windowItem.offsetLeft - (lastX - e.touches[0].clientX)) + "px";
+                        windowItem.style.top = (windowItem.offsetTop - (lastY - e.touches[0].clientY)) + "px";
+                        lastX = e.touches[0].clientX;
+                        lastY = e.touches[0].clientY;
+                    }
+                    windowItem.ontouchcancel = function () {
+                        e.preventDefault();
+                        windowItem.style.opacity = 1;
+                        windowItem.ontouchmove = null;
+                    }
+                }
+            };
 
             //创建动态JS脚本
             _ApiMudScript(sc) {
