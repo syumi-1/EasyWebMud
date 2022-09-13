@@ -1,0 +1,15 @@
+{
+    "start_url": "index.html",
+    "name": "EASY MUD",
+    "short_name": "EZMUD",
+    "icons": [
+        {
+            "src": "favicon.svg",
+            "purpose": "maskable any",
+            "type": "image/svg+xml",
+            "sizes": "any"
+        }
+    ],
+    "display": "fullscreen"
+  }
+  
