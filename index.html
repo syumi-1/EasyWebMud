@@ -223,6 +223,16 @@
             color: white;
         }
 
+        .mud-elements {
+            cursor: pointer;
+        }
+
+        .mud-elements:hover {
+            text-decoration: underline;
+            color: aqua;
+        }
+
+
         .mud-pop-shadow {
             position: fixed;
             left: 0;
@@ -252,6 +262,19 @@
             z-index: 10001;
             color: rgb(200, 200, 200);
             font-size: 2.1vh;
+        }
+
+        .mud-pop-dialog::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        .mud-pop-dialog::-webkit-scrollbar-thumb {
+            background-color: rgba(180, 180, 180, 0.3);
+        }
+
+        .mud-pop-dialog::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(180, 180, 180, 0.8);
         }
 
         .mud-pop-dialog * {
@@ -322,76 +345,32 @@
 
     <div class="container container_main">
         <div class="container container_main_top">
-            <div id="mud_top"></div>
+            <div id="mud_top" class="mud"></div>
         </div>
         <div class="container container_main_bottom">
-            <div id="mud_bottom"></div>
+            <div id="mud_bottom" class="mud"></div>
             <p></p>
         </div>
     </div>
 
     <div class="container container_extra rainbow">
-        <div>测</div>
-        <div>试</div>
-        <div>按</div>
-        <div>扭</div>
     </div>
 
     <div class="container container_sidebar rainbow">
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <p></p>
     </div>
 
     <div class="container container_bottom1 rainbow">
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
-        <div>测试按钮</div>
     </div>
     <div class="container container_bottom2">
         <form onsubmit="return false;">
-            <input type="button" value="↓" onclick="javascript:cmd.value=document.getSelection().toString();">
-            <input type="text" name="cmd" id="cmd" placeholder="请输入游戏指令" autocomplete="off">
-            <input type="submit" id="bsc">
+            <input type="button" id="mud_select" value="↓">
+            <input type="text" name="mud_text" id="mud_text" placeholder="请输入游戏指令" autocomplete="off">
+            <input type="submit" id="mud_send">
         </form>
     </div>
+    <script src="./ansi_up.js"></script>
     <script>
-        class mud {
+        class ezmud {
             constructor() {
                 this.settings = { variables: {}, elementRules: { pravite: {}, public: {}, group: {} }, triggers: {}, controls: {}, timers: {} };
                 this.runTimeFuncList = { triggers: {}, controls: {}, timers: {}, timersStatus: {} };
@@ -405,6 +384,9 @@
             //读取配置到settings
             ApiLoadSetting() {
                 this.settings = JSON.parse('' + self.localStorage.getItem("mudSettings"));
+                if (this.settings == null) {
+                    this.settings = { variables: {}, elementRules: { pravite: {}, public: {}, group: {} }, triggers: {}, controls: {}, timers: {} };
+                }
             }
             //文件导出配置
             ApiExportSetting() {
@@ -487,6 +469,7 @@
                         e.preventDefault();
                         windowItem.style.opacity = 1;
                         windowItem.ontouchmove = null;
+                        windowItem.ontouchcancel = null;
                     }
                 }
             };
@@ -545,27 +528,30 @@
                     };
                     this.ws.onclose = (_e) => {
                         console.log(_e);
-                        this.OnCloseEventHandler(url);
+                        this.OnCloseEventHandler(this, url);
                     };
                     this.ws.onerror = (_e) => {
                         console.log(_e);
-                        this.OnCloseEventHandler(url);
+                        this.OnCloseEventHandler(this, url);
                     };
                 } else {
                     console.log("您的浏览器不支持 WebSocket!");
                 }
             }
 
-            //WS获得消息显示处理以及调用触发器
+            //WS获得消息调用触发器并且显示
             async _OnMessageEventHandler(wsMessage) {
+                let msg = { original: wsMessage, element: null, isShow: true }
+                this.OnRenderEventHandler(this, msg);
                 for (let trigger in this.settings.triggers) {
                     if (this.settings.triggers[trigger].valid == true) {
                         if (!this.runTimeFuncList.triggers.hasOwnProperty(trigger)) {
                             await this._CompileDynamicFunc({ type: 'triggers', triggerName: trigger })
                         }
-                        (this.runTimeFuncList.triggers[trigger])(wsMessage);
+                        (this.runTimeFuncList.triggers[trigger])(this, msg);
                     }
                 }
+                this.OnMudShowEventHandler(this, msg);
             }
 
             //发送指令
@@ -607,7 +593,7 @@
                                 await this.ApiSleep(200);
                         }
                     }
-                    this.OnSendEventHandler(strCmd);
+                    this.OnSendEventHandler(this, strCmd);
                 } else {
                     console.log("服务器未连接！");
                 }
@@ -622,6 +608,7 @@
                         delete this.settings.variables[varName];
                     }
                 }
+                this.ApiSaveSetting();
             }
 
             //Sleep await ApiSleep(1000) 
@@ -644,7 +631,7 @@
                 if (flag) {
                     await this._CompileDynamicFunc({ type: 'timer', name: timerName });
                     if (!this.runTimeFuncList.timersStatus.hasOwnProperty(timerName)) {
-                        this.runTimeFuncList.timersStatus[timerName] = setInterval(this.runTimeFuncList.timers[timerName], delay);
+                        this.runTimeFuncList.timersStatus[timerName] = setInterval(() => { (this.runTimeFuncList.timers[timerName])(this) }, delay);
                     }
                 } else {
                     if (this.runTimeFuncList.timersStatus.hasOwnProperty(timerName)) {
@@ -654,6 +641,14 @@
                     }
                 }
             }
+
+            //激活控件
+            ApiActiveControl(actionName) {
+                if (this.runTimeFuncList.controls.hasOwnProperty(actionName)) {
+                    (this.runTimeFuncList.controls[actionName])(this);
+                }
+            }
+
 
             //设置点击项目
             ApiSetRule(info = { type: null, element: null, group: null, actionName: null, action: null }) {
@@ -719,12 +714,13 @@
                     case 'controlRule':
                         if (info.action != null && info.action != undefined && info.action.length > 0) {
                             this.settings.controls[info.actionName] = { group: info.group, action: info.action };
-                            this.OnAddControlEventHandler(info.actionName);
+                            this.OnDelControlEventHandler(this, info.actionName);
                             this._CompileDynamicFunc({ type: 'controls', name: info.actionName })
+                            this.OnAddControlEventHandler(this, info.actionName);
                         } else {
                             if (this.settings.controls.hasOwnProperty(info.actionName)) {
                                 delete this.settings.controls[info.actionName];
-                                this.OnDelControlEventHandler(info.actionName);
+                                this.OnDelControlEventHandler(this, info.actionName);
                                 this._DeCompileDynamicFunc({ type: 'controls', name: info.actionName })
                             }
                         }
@@ -742,7 +738,7 @@
                         break;
                     case 'timerRule':
                         if (info.action != null && info.action != undefined && info.action.length > 0) {
-                            this.settings.timers[info.actionName] = { valid: false, action: info.action };
+                            this.settings.timers[info.actionName] = { action: info.action };
                         } else {
                             if (this.settings.timers.hasOwnProperty(info.actionName)) {
                                 delete this.settings.timers[info.actionName];
@@ -778,7 +774,7 @@
                         tmpAction = this.settings.triggers[info.name].action;
                         if (tmpAction.slice(0, 2) == '~~') {
                             tmpAction = tmpAction.slice(2);
-                            script = "self._mud_.runTimeFuncList.triggers" + info.name + "=async(msg)=>{let thisMud=self._mud_;" + tmpAction + ";}"
+                            script = "self._mud_.runTimeFuncList.triggers['" + info.name + "']=async(pMud,msg)=>{let thisMud=pMud;" + tmpAction + ";}"
                             await this._ApiMudScript(script);
                         } else {
                             this.runTimeFuncList.triggers[info.name] = () => { this._ApiSendCmd(tmpAction) };
@@ -788,7 +784,7 @@
                         tmpAction = this.settings.controls[info.name].action;
                         if (tmpAction.slice(0, 2) == '~~') {
                             tmpAction = tmpAction.slice(2);
-                            script = "self._mud_.runTimeFuncList.controls" + info.name + "=async()=>{let thisMud=self._mud_;" + tmpAction + ";}"
+                            script = "self._mud_.runTimeFuncList.controls['" + info.name + "']=async(pMud)=>{let thisMud=pMud;" + tmpAction + ";}"
                             await this._ApiMudScript(script);
                         } else {
                             this.runTimeFuncList.controls[info.name] = () => { this._ApiSendCmd(tmpAction) };
@@ -798,7 +794,7 @@
                         tmpAction = this.settings.timers[info.name].action;
                         if (tmpAction.slice(0, 2) == '~~') {
                             tmpAction = tmpAction.slice(2);
-                            script = "self._mud_.runTimeFuncList.timers" + info.name + "=async()=>{let thisMud=self._mud_;" + tmpAction + ";}"
+                            script = "self._mud_.runTimeFuncList.timers['" + info.name + "']=async(pMud)=>{let thisMud=pMud;" + tmpAction + ";}"
                             await this._ApiMudScript(script);
                         } else {
                             this.runTimeFuncList.timers[info.name] = () => { this._ApiSendCmd(tmpAction) };
@@ -834,7 +830,7 @@
 						</form>
                         `;
                 dialog.querySelector('#mudsubmit').onclick = () => {
-                    console.log(dialog.querySelector('#mudaddress').value);
+                    this.ApiConnect(dialog.querySelector('#mudaddress').value);
                     dialog.close();
                 }
                 this.ApiMudDialog(dialog);
@@ -882,6 +878,26 @@
                 title.innerText = '管理中心';
                 dialog.appendChild(title);
                 dialog.appendChild(self.document.createElement('hr'));
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '激活/关闭触发器';
+                    pBtn.addEventListener('click', () => {
+                        dialog.close();
+                        this.ApiDlgTriggerActive();
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
+                {
+                    let pBtn = self.document.createElement('div');
+                    pBtn.className = 'mud-pop-dialog-button';
+                    pBtn.innerText = '激活/关闭定时器';
+                    pBtn.addEventListener('click', () => {
+                        dialog.close();
+                        this.ApiDlgTimerActive();
+                    }, false)
+                    dialog.appendChild(pBtn);
+                };
                 {
                     let pBtn = self.document.createElement('div');
                     pBtn.className = 'mud-pop-dialog-button';
@@ -1025,6 +1041,79 @@
                 this.ApiMudDialog(dialog);
             }
 
+            //触发器控制对话框
+            ApiDlgTriggerActive() {
+                let dialog = self.document.createElement('div');
+                let title = self.document.createElement('div');
+                title.className = 'mud-pop-dialog-title';
+                title.innerText = '触发器控制';
+                dialog.appendChild(title);
+                dialog.appendChild(self.document.createElement('hr'));
+                for (let pActionName in this.settings.triggers) {
+                    if ((this.settings.triggers[pActionName]).valid == true) {
+                        let pButton = self.document.createElement('div');
+                        pButton.className = 'mud-pop-dialog-button';
+                        pButton.innerText = '[关闭]' + pActionName;
+                        pButton.addEventListener('click', () => {
+                            this.ApiSetTrigger(pActionName, true);
+                            dialog.close();
+                            this.ApiDlgTriggerActive();
+                        }, false)
+                        dialog.appendChild(pButton);
+                    } else {
+                        let pButton = self.document.createElement('div');
+                        pButton.className = 'mud-pop-dialog-button';
+                        pButton.innerText = '[激活]' + pActionName;
+                        pButton.addEventListener('click', () => {
+                            this.ApiSetTrigger(pActionName, false);
+                            dialog.close();
+                            this.ApiDlgTriggerActive();
+                        }, false)
+                        dialog.appendChild(pButton);
+                    }
+                }
+                this.ApiMudDialog(dialog);
+            }
+
+            //定时器控制对话框
+            ApiDlgTimerActive() {
+                let dialog = self.document.createElement('div');
+                let title = self.document.createElement('div');
+                title.className = 'mud-pop-dialog-title';
+                title.innerText = '定时器控制';
+                dialog.appendChild(title);
+                dialog.appendChild(self.document.createElement('hr'));
+                for (let pActionName in this.settings.timers) {
+                    if (!this.runTimeFuncList.timersStatus.hasOwnProperty(pActionName)) {
+                        let pButton = self.document.createElement('div');
+                        pButton.className = 'mud-pop-dialog-button';
+                        pButton.innerText = '[激活]' + pActionName;
+                        pButton.addEventListener('click', () => {
+                            let usrInput = prompt("请输入间隔时间(毫秒)", "10000"); if (usrInput == null) return;
+                            this.ApiSetTimer(pActionName, true, Number(usrInput));
+                            dialog.close();
+                            this.ApiDlgTimerActive();
+                        }, false)
+                        dialog.appendChild(pButton);
+                    }
+                }
+                for (let pActionName in this.runTimeFuncList.timersStatus) {
+                    let pButton = self.document.createElement('div');
+                    pButton.className = 'mud-pop-dialog-button';
+                    pButton.innerText = '[关闭]' + pActionName;
+                    pButton.addEventListener('click', () => {
+                        let usrInput = prompt("请输入间隔时间(毫秒)", "10000"); if (usrInput == null) return;
+                        this.ApiSetTimer(pActionName, false, Number(usrInput));
+                        dialog.close();
+                        this.ApiDlgTimerActive();
+                    }, false)
+                    dialog.appendChild(pButton);
+                }
+                this.ApiMudDialog(dialog);
+            }
+
+
+
             //项目点击对话框
             ApiDlgElementActive(cmdStr) {
                 if (this.settings.elementRules.pravite.hasOwnProperty(cmdStr) && (this.settings.elementRules.pravite[cmdStr]).action.hasOwnProperty('direct')) {
@@ -1076,40 +1165,174 @@
                 this.ApiMudDialog(dialog);
             }
 
+            //初始化
+            async ApiMudInit() {
+                //关闭定时器
+                for (let actionName in this.runTimeFuncList.timersStatus) {
+                    await this.ApiSetTimer(actionName, false);
+                }
+                //删除控件
+                for (let actionName in this.runTimeFuncList.controls) {
+                    this.OnDelControlEventHandler(this, actionName);
+                };
+                //删除全部运行时编译函数
+                this.runTimeFuncList = { triggers: {}, controls: {}, timers: {}, timersStatus: {} };
+
+                //从localStorage读取配置
+                this.ApiLoadSetting();
+
+                //编译runTimeFuncList
+                for (let actionName in this.settings.triggers) {
+                    this._CompileDynamicFunc({ type: 'triggers', name: actionName });
+                };
+                for (let actionName in this.settings.controls) {
+                    this.OnAddControlEventHandler(this, actionName);
+                    //重绘控件
+                    this._CompileDynamicFunc({ type: 'controls', name: actionName });
+                };
+
+                this.OnInitEndEventHandler(this);
+            }
+
             //WS连接中断处理
-            OnCloseEventHandler(url) {
+            OnCloseEventHandler(pMud, url) {
 
             }
 
             //发送指令结束处理
-            OnSendEventHandler(strCmd) {
+            OnSendEventHandler(pMud, strCmd) {
 
             }
 
-            //添加控件结束处理
-            OnAddControlEventHandler(actionName) {
+            //添加控件结束UI绘制
+            OnAddControlEventHandler(pMud, actionName) {
 
             }
 
-            //删除控件结束处理
-            OnDelControlEventHandler(actionName) {
+            //删除控件结束UI绘制
+            OnDelControlEventHandler(pMud, actionName) {
 
             }
 
-            //初始化
-            ApiMudInit() {
-                this.ApiSetRule({
+            //初始化结束
+            OnInitEndEventHandler(pMud) {
+
+            }
+
+            //渲染WS
+            OnRenderEventHandler(pMud, msg = { original: null, element: null, isShow: true }) {
+
+            }
+
+            //在界面上显示MUD
+            OnMudShowEventHandler(pMud, msg = { original: wsMessage, element: null, isShow: true }) {
+
+            }
+        };
+
+        ((document) => {
+            const mud = new ezmud();
+            const ctlSidebar = document.querySelector('.container_sidebar');
+            const ctlbottom = document.querySelector('.container_bottom1');
+            const ctlExtra = document.querySelector('.container_extra');
+            const mudTop = document.querySelector('#mud_top');
+            const mudBottom = document.querySelector('#mud_bottom');
+            const mudSend = document.querySelector('#mud_send');
+            const mudText = document.querySelector('#mud_text');
+            const mudSelect = document.querySelector('#mud_select');
+            const ansi_up = new AnsiUp;
+
+            mudSelect.onclick = () => {
+                mudText.value = document.getSelection().toString();
+            }
+            mudSend.onclick = () => {
+                mud.ApiScript(mudText.value);
+            }
+
+            mud.OnRenderEventHandler = (pMud, msg) => {
+                let msgHtml = ansi_up.ansi_to_html(msg.original);
+                let newSpan = document.createElement('span');
+                newSpan.className = 'mud-section';
+                newSpan.innerHTML = msgHtml;
+                for (let i = 0; i < newSpan.children.length; i++) {
+                    newSpan.children[i].innerText = newSpan.children[i].innerText.replace(/([a-zA-Z][a-zA-Z0-9_\- ]{0,200}[a-zA-Z0-9])/g, '{{span}}$1{{/span}}');
+                    newSpan.children[i].innerHTML = newSpan.children[i].innerHTML.replaceAll('{{/span}}', '</span>').replaceAll('{{span}}', '<span class="mud-elements">')
+                }
+                let mudElements = newSpan.getElementsByClassName('mud-elements');
+                for (let i = 0; i < mudElements.length; i++) {
+                    mudElements[i].addEventListener('click', () => {
+                        pMud.ApiDlgElementActive(mudElements[i].innerText)
+                    });
+                }
+                msg.element = newSpan;
+            }
+            mud.OnMudShowEventHandler = (pMud, msg) => {
+                mudBottom.appendChild(msg.element);
+            }
+
+
+            mud.OnCloseEventHandler = async (pMud, url) => {
+                await pMud.ApiSleep(10000);
+                pMud.ApiConnect(url);
+            }
+            mud.OnAddControlEventHandler = (pMud, actionName) => {
+                if (pMud.settings.controls.hasOwnProperty(actionName)) {
+                    let newControl = document.createElement('div');
+                    newControl.onclick = () => { pMud.ApiActiveControl(actionName) };
+                    newControl.innerText = actionName;
+                    switch ((pMud.settings.controls[actionName]).group) {
+                        case '0':
+                            ctlSidebar.appendChild(newControl);
+                            break;
+                        case '1':
+                            ctlbottom.appendChild(newControl);
+                            break;
+                        case '2':
+                            ctlExtra.appendChild(newControl);
+                            break;
+                    }
+                }
+            }
+            mud.OnDelControlEventHandler = (pMud, actionName) => {
+                for (let i = ctlSidebar.children.length - 1; i >= 0; i--) {
+                    if (ctlSidebar.children[i].innerText == actionName) {
+                        ctlSidebar.removeChild(ctlSidebar.children[i])
+                    }
+                }
+                for (let i = ctlbottom.children.length - 1; i >= 0; i--) {
+                    if (ctlbottom.children[i].innerText == actionName) {
+                        ctlbottom.removeChild(ctlbottom.children[i])
+                    }
+                }
+                for (let i = ctlExtra.children.length - 1; i >= 0; i--) {
+                    if (ctlExtra.children[i].innerText == actionName) {
+                        ctlExtra.removeChild(ctlExtra.children[i])
+                    }
+                }
+            }
+            mud.OnInitEndEventHandler = (pMud) => {
+                //设置默认行为
+                pMud.ApiSetRule({
                     type: 'publicRule', actionName: '添加行为', action: `~~
                     let a = prompt("请输入语法描述(输入direct则点击即触发)", 'direct'); if (a == null) return;
                     let b = prompt("请输入语法", '{{cmd}}'); if (b == null) return;
                     thisMud.ApiSetRule({type:'praviteRule',element:thisCmd,actionName:a,action:b});
                 `});
-                this.ApiSetRule({
+                pMud.ApiSetRule({
                     type: 'publicRule', actionName: '管理分组', action: `~~
                     thisMud.ApiDlgElementGroup(thisCmd);
                 `});
+                pMud.ApiSetRule({
+                    type: 'controlRule', actionName: '设', group: '2', action: `~~
+                    thisMud.ApiDlgControlCenter();
+                `});
+                pMud.ApiSetRule({
+                    type: 'controlRule', actionName: '连接游戏', group: '0', action: `~~
+                    thisMud.ApiDlgConnect();
+                `});
             }
-        }
+            mud.ApiMudInit();
+        })(document)
 
     </script>
 </body>
