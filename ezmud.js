@@ -7,13 +7,16 @@ class ezmud {
 
     //保存配置到localStorage
     ApiSaveSetting() {
-        self.localStorage.setItem("mudSettings", JSON.stringify(this.settings));
+        self.localStorage.setItem("mudSettings1_0", JSON.stringify(this.settings));
     }
     //读取配置到settings
     ApiLoadSetting() {
-        this.settings = JSON.parse('' + self.localStorage.getItem("mudSettings"));
-        if (this.settings == null) {
+        this.settings = JSON.parse('' + self.localStorage.getItem("mudSettings1_0"));
+        if (this.settings == null ||
+            (this.settings.variables && this.settings.elementRules && this.settings.triggers && this.settings.controls && this.settings.timers) == undefined ||
+            (this.settings.elementRules.pravite && this.settings.elementRules.public && this.settings.elementRules.group) == undefined) {
             this.settings = { variables: {}, elementRules: { pravite: {}, public: {}, group: {} }, triggers: {}, controls: {}, timers: {} };
+            this.ApiSaveSetting() ;
         }
     }
     //文件导出配置
@@ -37,7 +40,7 @@ class ezmud {
             fReader.readAsText(importObj.files[0]);
             fReader.onload = (e) => {
                 this.settings = JSON.parse(e.target.result);
-                self.localStorage.setItem("mudSettings", JSON.stringify(this.settings));
+                self.localStorage.setItem("mudSettings1_0", JSON.stringify(this.settings));
                 self.document.body.removeChild(importObj);
             }
         }
