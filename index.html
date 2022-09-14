@@ -9,64 +9,219 @@
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="Cache" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Easy Mud Test</title>
+    <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="manifest.json">
+    <title>EASY MUD</title>
     <style>
         body {
-            color-scheme: dark !important;
-            background-color: #181a1b !important;
-            color: rgb(185, 179, 170);
-            font-size: 2vw;
-        }
-
-        input {
-            text-size-adjust: 100%;
-            align-items: center;
-            border: 1px solid transparent;
-            display: inline-flex;
-            font-size: 1rem;
-            height: 2.5em;
-            justify-content: flex-start;
-            line-height: 1.5;
-            position: relative;
-            vertical-align: top;
-            background-color: rgb(24, 26, 27);
-            border-radius: .375em;
-            border-color: rgb(58, 63, 65);
-            box-shadow: rgba(8, 8, 8, 0.05) 0px 0.0625em 0.125em inset;
-        }
-
-        input:hover {
-            border-color: rgb(69, 75, 78);
-        }
-
-        #mud {
             margin: 0;
             padding: 0;
-            /*font-variant-numeric: tabular-nums;*/
-            white-space: pre;
-            font-family: nsimsun, monospace;
-            line-height: 1.3;
-            background: black;
-            color: white;
-            height: 80vh;
+            height: 100vh;
+            background-color: #1A1A1A;
+            color: #AFAFAF;
+            font-size: 2.5vh;
+            overflow: hidden;
+        }
+
+        .container::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background-color: rgba(180, 180, 180, 0.3);
+        }
+
+        .container::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(180, 180, 180, 0.8);
+        }
+
+        .container {
+            box-sizing: border-box;
+            border: 0.1vmin solid #AFAFAF;
+        }
+
+        .container_main {
+            margin-left: 8vh;
+            height: 90vh;
+            background-color: black;
+            width: calc(100vw-8vh);
+
+        }
+
+        .container_main_top {
+            margin: 0;
+            height: 20vh;
+            background-color: black;
             width: 100%;
+            overflow: auto;
+        }
+
+        .container_main_bottom {
+            margin: 0;
+            height: 70vh;
+            background-color: black;
+            width: 100%;
+            overflow: auto;
+        }
+
+        .container_main_bottom>p {
+            margin: 0;
+            height: 20vh;
+        }
+
+        .container_bottom1 {
+            background-color: #1A1A1A;
+            position: fixed;
+            width: 100%;
+            bottom: 5vh;
+            height: 5vh;
             overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+        }
+
+        .container_bottom1>div {
+            margin: 0.5vh;
+            margin-left: 0.5vh;
+            display: inline-block;
+        }
+
+        .container_bottom2 {
+            background-color: #1A1A1A;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            height: 5vh;
+        }
+
+        .container_bottom2 input {
+            margin-top: 1px;
+            font-size: 2.5vh;
+            height: 4vh;
+            border: 0.1vmin solid lightblue;
+            border-radius: .375em;
+            color: #fff;
+            vertical-align: middle;
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+        .container_bottom2 input[type="text"] {
+            width: 70%;
+        }
+
+        .container_bottom2 input[type="submit"] {
+            width: 10%;
+        }
+
+        .container_bottom2 input[type="button"] {
+            width: 10%;
+        }
+
+        .container_bottom2 input[type="submit"]:active {
+            border-color: red;
+            color: red;
+        }
+
+        .container_bottom2 input[type="button"]:active {
+            border-color: red;
+            color: red;
+        }
+
+        .container_sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 8vh;
+            height: 90vh;
+            overflow-x: hidden;
             overflow-y: auto;
         }
 
-        #mud::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        .container_sidebar>div {
+            margin: 0.5vh;
+            margin-top: 2vh;
+            text-align: center;
+            word-break: break-all;
         }
 
-        #mud::-webkit-scrollbar-thumb {
-            height: 50px;
-            background-color: rgba(180, 180, 180, 0.5);
+        .container_sidebar>p {
+            margin: 0;
+            height: 20vh;
         }
 
-        #mud::-webkit-scrollbar-thumb:hover {
-            height: 50px;
-            background-color: rgba(180, 180, 180, 0.8);
+        .container_extra {
+            border: none;
+            right: 2vh;
+            bottom: 55vh;
+            position: fixed;
+        }
+
+        .container_extra>div {
+            border: none !important;
+            font-weight: bold;
+            margin-bottom: 2vh;
+        }
+
+        .rainbow div {
+            user-select: none;
+            cursor: pointer;
+            box-sizing: border-box;
+            border-radius: 1vh;
+            opacity: 0.7;
+        }
+
+        .rainbow div:active {
+            opacity: 1;
+        }
+
+        .rainbow div:nth-child(8n-7) {
+            border: 0.1vmin solid orchid;
+            color: orchid;
+        }
+
+        .rainbow div:nth-child(8n-6) {
+            border: 0.1vmin solid mediumpurple;
+            color: mediumpurple;
+        }
+
+        .rainbow div:nth-child(8n-5) {
+            border: 0.1vmin solid deepskyblue;
+            color: deepskyblue;
+        }
+
+        .rainbow div:nth-child(8n-4) {
+            border: 0.1vmin solid cyan;
+            color: cyan;
+        }
+
+        .rainbow div:nth-child(8n-3) {
+            border: 0.1vmin solid mediumspringgreen;
+            color: mediumspringgreen;
+        }
+
+        .rainbow div:nth-child(8n-2) {
+            border: 0.1vmin solid yellow;
+            color: yellow;
+        }
+
+        .rainbow div:nth-child(8n-1) {
+            border: 0.1vmin solid gold;
+            color: gold;
+        }
+
+        .rainbow div:nth-child(8n) {
+            border: 0.1vmin solid tomato;
+            color: tomato;
+        }
+
+        .mud {
+            font-size: 1.2vw;
+            margin: 0;
+            padding: 0;
+            white-space: pre;
+            font-family: nsimsun, "Courier New", Courier, monospace;
+            color: white;
         }
 
         .mud-elements {
@@ -77,6 +232,7 @@
             text-decoration: underline;
             color: aqua;
         }
+
 
         .mud-pop-shadow {
             position: fixed;
@@ -96,259 +252,293 @@
             right: 0;
             top: 0;
             bottom: 0;
-            width: 80vw;
-            height: 80vh;
+            width: 70vw;
+            height: 75vh;
             overflow-y: auto;
+            overflow-x: hidden;
             opacity: 1;
-            background-color: rgb(24, 26, 27);
-            border-radius: 6px;
-            padding: 5px;
+            background-color: rgb(26, 26, 26);
+            border-radius: 3px;
             box-shadow: 10px 10px 10px rgb(0 0 0 / 80%);
             z-index: 10001;
-            color: rgb(185, 179, 170);
-            font-size: 2em;
+            color: rgb(200, 200, 200);
+            font-size: 2.1vh;
         }
 
-        .mud-pop-dialog li {
-            display: flex;
-            float: left;
-            align-items: center;
-            justify-content: center;
-            width: 45%;
-            list-style: none;
+        .mud-pop-dialog::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        .mud-pop-dialog::-webkit-scrollbar-thumb {
+            background-color: rgba(180, 180, 180, 0.3);
+        }
+
+        .mud-pop-dialog::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(180, 180, 180, 0.8);
+        }
+
+        .mud-pop-dialog * {
+            margin: 0;
+        }
+
+        .mud-pop-dialog .mud-pop-dialog-div {
+            padding: 0.7em 1em 0.7em 1em;
+            color: rgb(200, 200, 200);
+            background: rgb(26, 26, 26);
+            font-size: 2.1vh;
+        }
+
+        .mud-pop-dialog .mud-pop-dialog-title {
+            padding: 0.7em 1em 0.7em 1em;
+            font-size: 3vh;
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .mud-pop-dialog .mud-pop-dialog-button {
+            padding: 0.7em 1em 0.7em 1em;
+            user-select: none;
             cursor: pointer;
+            background: linear-gradient(to left, rgb(26, 26, 26) 50%, rgb(60, 60, 60) 50%) right;
+            background-size: 200%;
         }
 
-        .mud-pop-dialog li:hover {
+        .mud-pop-dialog .mud-pop-dialog-button:active {
+            transition: .2s ease-out;
+            background-position: left;
+        }
+
+        .mud-pop-dialog input {
+            border: none;
+            background: rgb(26, 26, 26);
+            color: rgb(200, 200, 200);
+            font-size: 2.1vh;
+            width: 100%;
+            outline: none;
+        }
+
+        .mud-pop-dialog input[type="text"] {
+            color: rgb(200, 255, 200);
+            padding: 0.7em 1em 0.7em 1em;
+            width: calc(100% - 1.4em);
+        }
+
+        .mud-pop-dialog input[type="submit"],
+        .mud-pop-dialog input[type="button"] {
+            font-weight: bold;
+            color: rgb(255, 200, 200);
             text-decoration: underline;
-            color: aqua;
+        }
+
+        .mud-pop-dialog hr {
+            margin: 0.5em 0 0.5em 0;
+            padding: 0;
+            border: none;
+            height: 1px;
+            background-color: black;
         }
     </style>
 </head>
 
 <body>
-    <div>
-        <div>
-            <pre name="mud" id="mud"></pre>
+
+    <div class="container container_main">
+        <div class="container container_main_top">
+            <div id="mud_top" class="mud"></div>
         </div>
-        <div>
-            <form onsubmit="return false;">
-                <input type="text" name="cmd" id="cmd" placeholder="请输入游戏指令">
-                <input type="submit" id="bsc">
-            </form>
-        </div>
-        <div>
-            <form onsubmit="return false;">
-                <input type="text" name="url" id="url" value="wss://mud.ren:8888"
-                    placeholder="请输入 websocket 服务器地址，如：ws://mud.ren:8888">
-                <input type="submit" id="bmc" value="连接">
-            </form>
+        <div class="container container_main_bottom">
+            <div id="mud_bottom" class="mud"></div>
         </div>
     </div>
 
+    <div class="container container_extra rainbow">
+    </div>
 
+    <div class="container container_sidebar rainbow">
+    </div>
+
+    <div class="container container_bottom1 rainbow">
+    </div>
+    <div class="container container_bottom2">
+        <form onsubmit="return false;">
+            <input type="button" id="mud_select" value="↓">
+            <input type="text" name="mud_text" id="mud_text" placeholder="请输入游戏指令" autocomplete="off">
+            <input type="submit" id="mud_send">
+        </form>
+    </div>
     <script src="./ansi_up.js"></script>
+    <script src="./ezmud.js"></script>
     <script>
-        (function (window, document) {
-            "use strict";
-            let ws = undefined;
-            const cmd = document.getElementById("cmd");
-            const mud = document.getElementById("mud");
+        ((document) => {
+            const mud = new ezmud();
+            const ctlSidebar = document.querySelector('.container_sidebar');
+            const ctlbottom = document.querySelector('.container_bottom1');
+            const ctlExtra = document.querySelector('.container_extra');
+            const mudTop = document.querySelector('#mud_top');
+            const mudBottom = document.querySelector('#mud_bottom');
+            const mudSend = document.querySelector('#mud_send');
+            const mudText = document.querySelector('#mud_text');
+            const mudSelect = document.querySelector('#mud_select');
             const ansi_up = new AnsiUp;
-            window.mudSettings = JSON.parse(localStorage.getItem("mudSettings"));
-            if (window.mudSettings == undefined) {
-                window.mudSettings = {
-                    elementRule: {}
-                }
+
+            mudSelect.onclick = () => {
+                mudText.value = document.getSelection().toString();
             }
-            document.getElementById("bsc").onclick = () => {
-                sendCmd(); cmd.select();
-            }
-            document.getElementById("bmc").onclick = () => {
-                mudConnect();
+            mudSend.onclick = () => {
+                let newSpan = document.createElement('span');
+                newSpan.className = 'mud-section mud-elements';
+                newSpan.innerText = mudText.value + "\n";
+                let elementText = mudText.value;
+                newSpan.addEventListener('click', () => { pMud.ApiScript(mudText.value) });
+                mudBottom.appendChild(newSpan);
+                mud.ApiScript(mudText.value);
+                mudText.select();
+                document.querySelector('.container_main_bottom').scrollTop = document.querySelector('.container_main_bottom').scrollHeight;
             }
 
-            const mudPopDialog = (mudElement) => {
-                if (window.mudSettings.elementRule.hasOwnProperty(mudElement) && window.mudSettings.elementRule[mudElement].hasOwnProperty(mudElement)) {
-                    cmd.value = window.mudSettings.elementRule[mudElement][mudElement].replaceAll('{{C}}', mudElement);
-                    sendCmd();
-                    return;
+            mud.OnRenderEventHandler = (pMud, msg) => {
+                let msgHtml = ansi_up.ansi_to_html(msg.original);
+                let newSpan = document.createElement('span');
+                newSpan.className = 'mud-section';
+                newSpan.innerHTML = msgHtml;
+                for (let i = 0; i < newSpan.children.length; i++) {
+                    newSpan.children[i].innerText = newSpan.children[i].innerText.replace(/([a-zA-Z][a-zA-Z0-9_\- ]{0,200}[a-zA-Z0-9])/g, '{{span}}$1{{/span}}');
+                    newSpan.children[i].innerHTML = newSpan.children[i].innerHTML.replaceAll('{{/span}}', '</span>').replaceAll('{{span}}', '<span class="mud-elements">')
                 }
-                let shadow = document.createElement('div');
-                let dialog = document.createElement('div');
-                shadow.className = 'mud-pop-shadow';
-                dialog.className = 'mud-pop-dialog';
-                shadow.addEventListener('click', () => { document.body.removeChild(shadow); document.body.removeChild(dialog); }, false);
-                let mudElementTitle = document.createElement('div');
-                mudElementTitle.innerText = mudElement;
-                dialog.appendChild(mudElementTitle);
-                let mudElementUL = document.createElement('ul');
-                if (window.mudSettings.elementRule.hasOwnProperty(mudElement)) {
-                    for (let desc in window.mudSettings.elementRule[mudElement]) {
-                        let tempLI = document.createElement('li');
-                        tempLI.innerText = desc;
-                        tempLI.addEventListener('click', () => {
-                            cmd.value = window.mudSettings.elementRule[mudElement][desc].replaceAll('{{C}}', mudElement);
-                            sendCmd();
-                            document.body.removeChild(shadow);
-                            document.body.removeChild(dialog);
-                        }, false);
-                        mudElementUL.appendChild(tempLI);
-                    }
+                let mudElements = newSpan.getElementsByClassName('mud-elements');
+                for (let i = 0; i < mudElements.length; i++) {
+                    mudElements[i].addEventListener('click', () => {
+                        pMud.ApiDlgElementActive(mudElements[i].innerText)
+                    });
                 }
-                let mudElementAddAction = document.createElement('li');
-                mudElementAddAction.innerText = '增加行为';
-                mudElementAddAction.addEventListener('click', () => {
-                    let mudElementName = prompt("请输入要增加行为的指令名", mudElement); if (mudElementName == null) return;
-                    let mudElementNameDesc = prompt("请输入行为内容的描述(输入与指令名相同则点击即触发)", mudElement); if (mudElementNameDesc == null) return;
-                    let mudElementNameAction = prompt("请输入行为指令(使用{{C}}替换指令名)", '{{C}}'); if (mudElementNameAction == null) return;
-                    if (!window.mudSettings.elementRule.hasOwnProperty(mudElementName)) {
-                        window.mudSettings.elementRule[mudElementName] = {};
-                    }
-                    window.mudSettings.elementRule[mudElementName][mudElementNameDesc] = mudElementNameAction;
-                    localStorage.setItem("mudSettings", JSON.stringify(window.mudSettings));
-                }, false);
-                mudElementUL.appendChild(mudElementAddAction);
-                let mudElementDelAction = document.createElement('li');
-                mudElementDelAction.innerText = '删除行为';
-                mudElementDelAction.addEventListener('click', () => {
-                    let mudElementName = prompt("请输入要删除的命令", mudElement); if (mudElementName == null) return;
-                    if (window.mudSettings.elementRule.hasOwnProperty(mudElementName)) {
-                        delete window.mudSettings.elementRule[mudElementName];
-                        localStorage.setItem("mudSettings", JSON.stringify(window.mudSettings));
-                    }
-                }, false);
-                mudElementUL.appendChild(mudElementDelAction);
-                let mudElementCopyAction = document.createElement('li');
-                mudElementCopyAction.innerText = '复制行为';
-                mudElementCopyAction.addEventListener('click', () => {
-                    let mudElementNameFrom = prompt("请输入要复制的命令来源", mudElement); if (mudElementNameFrom == null) return;
-                    let mudElementNameTo = prompt("请输入要复制到的命令", mudElement); if (mudElementNameTo == null) return;
-                    if (window.mudSettings.elementRule.hasOwnProperty(mudElementNameTo)) {
-                        window.mudSettings.elementRule[mudElementNameTo] = JSON.parse(JSON.stringify(window.mudSettings.elementRule[mudElementNameFrom]));
-                        localStorage.setItem("mudSettings", JSON.stringify(window.mudSettings));
-                    }
-                }, false);
-                mudElementUL.appendChild(mudElementCopyAction);
-                let mudElementExportAction = document.createElement('li');
-                mudElementExportAction.innerText = '导出配置';
-                mudElementExportAction.addEventListener('click', () => {
-                    let exportLink = document.createElement('a');
-                    exportLink.download = 'mudSettings.txt';
-                    exportLink.style.display = 'none';
-                    let blob = new Blob([JSON.stringify(window.mudSettings)], { type: "text/plain" });
-                    exportLink.href = URL.createObjectURL(blob);
-                    document.body.appendChild(exportLink);
-                    exportLink.click();
-                    document.body.removeChild(exportLink);
-                }, false);
-                mudElementUL.appendChild(mudElementExportAction);
-                let mudElementImportAction = document.createElement('li');
-                mudElementImportAction.innerText = '导入配置';
-                mudElementImportAction.addEventListener('click', () => {
-                    let importObj = document.createElement('input');
-                    importObj.type = 'file';
-                    importObj.style.display = 'none';
-                    importObj.onchange = () => {
-                        let fReader = new FileReader();
-                        fReader.readAsText(importObj.files[0]);
-                        fReader.onload = (e) => {
-                            window.mudSettings = JSON.parse(e.target.result);
-                            localStorage.setItem("mudSettings", JSON.stringify(window.mudSettings));
-                            document.body.removeChild(importObj);
-                        }
-                    }
-                    document.body.appendChild(importObj);
-                    importObj.click();
-                }, false);
-                mudElementUL.appendChild(mudElementImportAction);
-                dialog.appendChild(mudElementUL);
-                document.body.append(shadow);
-                document.body.append(dialog);
+                msg.element = newSpan;
             }
-            const mudElementClickEventHandler = (_e) => {
-                let mudElement = _e.currentTarget.innerText.replaceAll(/([a-zA-Z][a-zA-Z0-9_\- ]{0,200}[a-zA-Z0-9])/g, '$1').toLowerCase();
-                mudPopDialog(mudElement);
-            }
-            const mudConnect = function () {
-                function addMsg(msg) {
-                    if (document.getElementsByClassName('mud-section').length > 100) {
-                        for (let i = 20; i == 0; i--) {
-                            mud.removeChild(document.getElementsByClassName('mud-section')[i]);
-                        }
-                    }
-                    let msgHtml = ansi_up.ansi_to_html(msg);
-                    let newSpan = document.createElement('span');
-                    newSpan.className = 'mud-section';
-                    newSpan.innerHTML = msgHtml;
-                    for (let i = 0; i < newSpan.children.length; i++) {
-                        newSpan.children[i].innerText = newSpan.children[i].innerText.replace(/([a-zA-Z][a-zA-Z0-9_\- ]{0,200}[a-zA-Z0-9])/g, '{{span}}$1{{/span}}');
-                        newSpan.children[i].innerHTML = newSpan.children[i].innerHTML.replaceAll('{{/span}}', '</span>').replaceAll('{{span}}', '<span class="mud-elements">')
-                    }
-                    let mudElements = newSpan.getElementsByClassName('mud-elements');
-                    for (let i = 0; i < mudElements.length; i++) {
-                        mudElements[i].addEventListener('click', mudElementClickEventHandler);
-                    }
-                    mud.appendChild(newSpan);
+            mud.OnMudShowEventHandler = (pMud, msg) => {
+                if (msg.isShow) {
+                    mudBottom.appendChild(msg.element);
+                    document.querySelector('.container_main_bottom').scrollTop = document.querySelector('.container_main_bottom').scrollHeight;
                 }
-                if ("WebSocket" in window) {
-                    let url = document.getElementById("url").value;
-                    // 打开一个 web socket
-                    ws = new WebSocket(url, "ascii");
-                    ws.binaryType = "arraybuffer";
-                    ws.onopen = (_event) => {
-                        console.log("服务器连接成功！");
-                    };
-                    ws.onmessage = (event) => {
-                        let data = event.data;
+            }
 
-                        if (data instanceof ArrayBuffer) {
-                            // console.log(data);
-                            let u8array = new Uint8Array(data);
-                            // 原始内容显示
-                            let decoder = new TextDecoder('utf-8');
-                            let msg = decoder.decode(u8array);
-                            //mud.innerHTML += msg;
-                            addMsg(msg);
-                        } else if (data instanceof Blob) {
-                            // console.log(data);
-                            let reader = new FileReader();
-                            reader.readAsText(data, 'utf-8');
-                            reader.onload = (_e) => {
-                                //mud.innerHTML += reader.result;
-                                addMsg(reader.result);
-                            }
-                        } else if (typeof data === "string") {
-                            //mud.innerHTML += data;
-                            addMsg(data);
-                        }
-                        mud.scrollTop = mud.scrollHeight;
-                    };
-                    ws.onclose = (_e) => {
-                    };
-                    ws.onerror = (_e) => {
-                    };
-                } else {
-                    // 浏览器不支持 WebSocket
-                    alert("您的浏览器不支持 WebSocket!");
+            mud.OnCloseEventHandler = async (pMud, url) => {
+                await pMud.ApiSleep(5000);
+                pMud.ApiConnect(url);
+            }
+
+            mud.OnAddControlEventHandler = (pMud, actionName) => {
+                if (pMud.settings.controls.hasOwnProperty(actionName)) {
+                    let newControl = document.createElement('div');
+                    newControl.onclick = () => { pMud.ApiActiveControl(actionName) };
+                    newControl.innerText = actionName;
+                    switch ((pMud.settings.controls[actionName]).group) {
+                        case '0':
+                            ctlSidebar.appendChild(newControl);
+                            break;
+                        case '1':
+                            ctlbottom.appendChild(newControl);
+                            break;
+                        case '2':
+                            ctlExtra.appendChild(newControl);
+                            break;
+                    }
                 }
             }
-            const sendCmd = function () {
-                if (ws) {
-                    let newSpan = document.createElement('span');
-                    newSpan.className = 'mud-section mud-elements';
-                    newSpan.innerText = cmd.value + "\n";
-                    let elementText = cmd.value;
-                    newSpan.addEventListener('click', () => { cmd.value = elementText; sendCmd(); });
-                    mud.appendChild(newSpan);
-                    ws.send(cmd.value + "\n");
-                    mud.scrollTop = mud.scrollHeight;
-                } else {
-                    console.log("服务器未连接！");
+            mud.OnDelControlEventHandler = (pMud, actionName) => {
+                for (let i = ctlSidebar.children.length - 1; i >= 0; i--) {
+                    if (ctlSidebar.children[i].innerText == actionName) {
+                        ctlSidebar.removeChild(ctlSidebar.children[i])
+                    }
+                }
+                for (let i = ctlbottom.children.length - 1; i >= 0; i--) {
+                    if (ctlbottom.children[i].innerText == actionName) {
+                        ctlbottom.removeChild(ctlbottom.children[i])
+                    }
+                }
+                for (let i = ctlExtra.children.length - 1; i >= 0; i--) {
+                    if (ctlExtra.children[i].innerText == actionName) {
+                        ctlExtra.removeChild(ctlExtra.children[i])
+                    }
                 }
             }
-        })(window, document)
+            mud.OnInitEndEventHandler = (pMud) => {
+                //设置默认行为
+                pMud.ApiSetRule({
+                    type: 'publicRule', actionName: '添加行为', action: `~~
+                    let a = prompt("请输入语法描述(输入direct则点击即触发)", 'direct'); if (a == null) return;
+                    let b = prompt("请输入语法", '{{cmd}}'); if (b == null) return;
+                    thisMud.ApiSetRule({type:'praviteRule',element:thisCmd,actionName:a,action:b});
+                `});
+                pMud.ApiSetRule({
+                    type: 'publicRule', actionName: '管理分组', action: `~~
+                    thisMud.ApiDlgElementGroup(thisCmd);
+                `});
+                pMud.ApiSetRule({
+                    type: 'controlRule', actionName: '设', group: '2', action: `~~
+                    thisMud.ApiDlgControlCenter();
+                `});
+                pMud.ApiSetRule({
+                    type: 'controlRule', actionName: '连接游戏', group: '0', action: `~~
+                    thisMud.ApiDlgConnect();
+                `});
+                pMud.ApiSetRule({
+                    type: 'controlRule', actionName: '看看', group: '1', action: `~~
+                    thisMud.ApiScript('look '+self.document.getSelection().toString());
+                `});
+
+                pMud.ApiSetRule({
+                    type: 'controlRule', actionName: '显示状态', group: '0', action: `~~
+                if (self.document.querySelector('#hpDiv') == null) {
+                let hpDiv = self.document.createElement('div');
+                hpDiv.id = 'hpDiv'
+                hpDiv.className = 'container mud'
+                hpDiv.style.opacity = 0.8
+                hpDiv.style.position = 'fixed'
+                hpDiv.style.backgroundColor = '#000'
+                hpDiv.style.top = '10vh'
+                hpDiv.style.left = '10vw'
+                hpDiv.style.fontSize ='0.5vw'
+                thisMud.ApiMudMoveable(hpDiv);
+                self.document.body.appendChild(hpDiv);
+                thisMud.ApiScript('hp');
+                thisMud.ApiSetTrigger('显示状态', true)
+                thisMud.ApiSetTimer('显示状态', true, 20000)
+                } else {
+                let hpDiv = self.document.querySelector('#hpDiv');
+                hpDiv.parentNode.removeChild(hpDiv);
+                thisMud.ApiSetTrigger('显示状态', false)
+                thisMud.ApiSetTimer('显示状态', false)
+                }
+                `});
+
+                pMud.ApiSetRule({
+                    type: 'triggerRule', actionName: '显示状态', action: `~~
+                if (self.document.querySelector('#hpDiv') != null) {
+                let regHp = RegExp('你目前的状态属性如下：', "igm");
+                if (regHp.test(msg.original)) {
+                    msg.isShow = false;
+                    self.document.querySelector('#hpDiv').innerHTML = msg.element.innerHTML;
+                }
+                }
+                `});
+
+                pMud.ApiSetRule({
+                    type: 'timerRule', actionName: '显示状态', action: `~~
+                if (self.document.querySelector('#hpDiv') != null) {
+                thisMud.ApiScript('hp');
+                }
+                `});
+
+            }
+            mud.ApiMudInit();
+
+
+
+        })(document)
+
     </script>
 </body>
+
 
 </html>
