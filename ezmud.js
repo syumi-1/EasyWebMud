@@ -16,7 +16,7 @@ class ezmud {
             (this.settings.variables && this.settings.elementRules && this.settings.triggers && this.settings.controls && this.settings.timers) == undefined ||
             (this.settings.elementRules.pravite && this.settings.elementRules.public && this.settings.elementRules.group) == undefined) {
             this.settings = { variables: {}, elementRules: { pravite: {}, public: {}, group: {} }, triggers: {}, controls: {}, timers: {} };
-            this.ApiSaveSetting() ;
+            this.ApiSaveSetting();
         }
     }
     //文件导出配置
@@ -102,6 +102,14 @@ class ezmud {
                 windowItem.style.opacity = oldOpacity;
                 windowItem.ontouchmove = null;
                 windowItem.ontouchcancel = null;
+                windowItem.ontouchend = null;
+            }
+            windowItem.ontouchend = function () {
+                e.preventDefault();
+                windowItem.style.opacity = oldOpacity;
+                windowItem.ontouchmove = null;
+                windowItem.ontouchcancel = null;
+                windowItem.ontouchend = null;
             }
         }
     };
@@ -578,7 +586,7 @@ class ezmud {
             pBtn.innerText = '添加公共指令';
             pBtn.addEventListener('click', () => {
                 let usrInput = prompt("请输入语法描述"); if (usrInput == null) return;
-                let usrInput1 = prompt("请输入要添加的公共指令的语法","{{cmd}}"); if (usrInput1 == null) return;
+                let usrInput1 = prompt("请输入要添加的公共指令的语法", "{{cmd}}"); if (usrInput1 == null) return;
                 if (usrInput != null && usrInput1 != null) {
                     this.ApiSetRule({ type: 'publicRule', actionName: usrInput, action: usrInput1 });
                     alert('添加成功');
