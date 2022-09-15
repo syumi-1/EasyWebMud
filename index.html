@@ -96,26 +96,26 @@
         }
 
         .container_bottom2 input {
-            margin-top: 1px;
+            margin: 2px 0 0 0;
+            padding: 0 0 0 0;
             font-size: 2.5vh;
             height: 4vh;
-            border: 0.1vmin solid lightblue;
-            border-radius: .375em;
+            border: 1px solid lightblue;
             color: #fff;
             vertical-align: middle;
             background-color: rgba(0, 0, 0, 0);
         }
 
         .container_bottom2 input[type="text"] {
-            width: 70%;
+            width: calc(100% - 10em);
         }
 
         .container_bottom2 input[type="submit"] {
-            width: 10%;
+            width: 4em;
         }
 
         .container_bottom2 input[type="button"] {
-            width: 10%;
+            width: 4em;
         }
 
         .container_bottom2 input[type="submit"]:active {
@@ -167,7 +167,6 @@
             user-select: none;
             cursor: pointer;
             box-sizing: border-box;
-            border-radius: 1vh;
             opacity: 0.7;
         }
 
@@ -216,11 +215,12 @@
         }
 
         .mud {
-            font-size: 1.2vw;
+            font-size: 16px;
+            /*font-size: 1.2vw;*/
             margin: 0;
             padding: 0;
             white-space: pre;
-            font-family: nsimsun, "Courier New", Courier, monospace;
+            font-family: 'Noto Sans Mono CJK SC', 'PingFang SC', 'STHeitiSC-Light', NSimSun, SimHei, monospace;
             color: white;
         }
 
@@ -262,7 +262,7 @@
             box-shadow: 10px 10px 10px rgb(0 0 0 / 80%);
             z-index: 10001;
             color: rgb(200, 200, 200);
-            font-size: 2.1vh;
+            font-size: 16px;
         }
 
         .mud-pop-dialog::-webkit-scrollbar {
@@ -286,12 +286,11 @@
             padding: 0.7em 1em 0.7em 1em;
             color: rgb(200, 200, 200);
             background: rgb(26, 26, 26);
-            font-size: 2.1vh;
         }
 
         .mud-pop-dialog .mud-pop-dialog-title {
             padding: 0.7em 1em 0.7em 1em;
-            font-size: 3vh;
+            font-size: 22px;
             font-weight: bold;
             font-style: italic;
             text-align: center;
@@ -314,7 +313,7 @@
             border: none;
             background: rgb(26, 26, 26);
             color: rgb(200, 200, 200);
-            font-size: 2.1vh;
+            font-size: 16px;
             width: 100%;
             outline: none;
         }
@@ -416,6 +415,15 @@
                 msg.element = newSpan;
             }
             mud.OnMudShowEventHandler = (pMud, msg) => {
+                const topReg = [/【.+】.+：/, /告诉你：/,/说道：/];
+                for (let i in topReg) {
+                    if (topReg[i].test(msg.element.innerText)) {
+                        msg.isShow = false;
+                        mudTop.appendChild(msg.element);
+                        document.querySelector('.container_main_top').scrollTop = document.querySelector('.container_main_top').scrollHeight;
+                        break;
+                    }
+                }
                 if (msg.isShow) {
                     mudBottom.appendChild(msg.element);
                     document.querySelector('.container_main_bottom').scrollTop = document.querySelector('.container_main_bottom').scrollHeight;
@@ -464,12 +472,24 @@
             }
             mud.OnInitEndEventHandler = (pMud) => {
                 //设置默认行为
+                const moveRule = ['north', 'east', 'west', 'south', 'northeast', 'southeast', 'southwest', 'northwest', 'up', 'down', 'in', 'out', 'enter'];
+                for (let i in moveRule) {
+                    pMud.ApiSetRule({
+                        type: 'praviteRule', element: moveRule[i], actionName: 'direct', action: '{{cmd}}'
+                    });
+                }
                 pMud.ApiSetRule({
                     type: 'publicRule', actionName: '添加行为', action: `~~
                     let a = prompt("请输入语法描述(输入direct则点击即触发)", 'direct'); if (a == null) return;
                     let b = prompt("请输入语法", '{{cmd}}'); if (b == null) return;
                     thisMud.ApiSetRule({type:'praviteRule',element:thisCmd,actionName:a,action:b});
                 `});
+                pMud.ApiSetRule({
+                    type: 'publicRule', actionName: '观察此物', action: 'look {{cmd}}'
+                });
+                pMud.ApiSetRule({
+                    type: 'publicRule', actionName: '查看帮助', action: 'help {{cmd}}'
+                });
                 pMud.ApiSetRule({
                     type: 'publicRule', actionName: '管理分组', action: `~~
                     thisMud.ApiDlgElementGroup(thisCmd);
@@ -498,7 +518,7 @@
                 hpDiv.style.backgroundColor = '#000'
                 hpDiv.style.top = '10vh'
                 hpDiv.style.left = '10vw'
-                hpDiv.style.fontSize ='0.5vw'
+                hpDiv.style.fontSize ='12px'
                 thisMud.ApiMudMoveable(hpDiv);
                 self.document.body.appendChild(hpDiv);
                 thisMud.ApiScript('hp');
