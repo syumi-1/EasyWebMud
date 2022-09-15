@@ -575,6 +575,20 @@ class ezmud {
         {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
+            pBtn.innerText = '添加公共指令';
+            pBtn.addEventListener('click', () => {
+                let usrInput = prompt("请输入语法描述"); if (usrInput == null) return;
+                let usrInput1 = prompt("请输入要添加的公共指令的语法","{{cmd}}"); if (usrInput1 == null) return;
+                if (usrInput != null && usrInput1 != null) {
+                    this.ApiSetRule({ type: 'publicRule', actionName: usrInput, action: usrInput1 });
+                    alert('添加成功');
+                }
+            }, false)
+            dialog.appendChild(pBtn);
+        };
+        {
+            let pBtn = self.document.createElement('div');
+            pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加分组指令';
             pBtn.addEventListener('click', () => {
                 let usrInput = prompt("请输入语法描述"); if (usrInput == null) return;
@@ -622,6 +636,19 @@ class ezmud {
                 let usrInput = prompt("请输入控件语法描述"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'controlRule', actionName: usrInput, action: null });
+                    alert('删除成功');
+                }
+            }, false)
+            dialog.appendChild(pBtn);
+        };
+        {
+            let pBtn = self.document.createElement('div');
+            pBtn.className = 'mud-pop-dialog-button';
+            pBtn.innerText = '删除公共指令';
+            pBtn.addEventListener('click', () => {
+                let usrInput = prompt("请输入控件语法描述"); if (usrInput == null) return;
+                if (usrInput != null) {
+                    this.ApiSetRule({ type: 'publicRule', actionName: usrInput, action: null });
                     alert('删除成功');
                 }
             }, false)
