@@ -60,6 +60,37 @@ class ezmud {
         self.document.body.append(dialog);
     }
 
+    //创建对话框
+    ApiMudPrompt(title, placeholder = '', defaultText = '') {
+        return new Promise((reject, resolve) => {
+            let shadow = self.document.createElement('div');
+            let dialog = self.document.createElement('div');
+            shadow.className = 'mud-pop-shadow';
+            dialog.classList.add('mud-pop-prompt');
+            dialog.innerHTML = `<div>
+                <div class="mud-pop-prompt-title"></div><hr>
+                <div><textarea class="mud-pop-prompt-text"></textarea><hr>
+                <div style="text-align: center"><input type="button" class="mud-pop-prompt-ok" value="确认"><input type="button" class="mud-pop-prompt-cancel" value="取消"></div>
+            </div>
+            `
+            dialog.querySelector('.mud-pop-prompt-title').innerText = title;
+            dialog.querySelector('.mud-pop-prompt-text').value = defaultText;
+            dialog.querySelector('.mud-pop-prompt-text').placeholder = placeholder;
+            dialog.querySelector('.mud-pop-prompt-ok').onclick = () => {
+                self.document.body.removeChild(shadow); self.document.body.removeChild(dialog); reject(dialog.querySelector('.mud-pop-prompt-text').value);
+            }
+            dialog.querySelector('.mud-pop-prompt-cancel').onclick = () => {
+                self.document.body.removeChild(shadow); self.document.body.removeChild(dialog); reject(null);
+            }
+            dialog.querySelector('.mud-pop-prompt-cancel').onclick = () => {
+                self.document.body.removeChild(shadow); self.document.body.removeChild(dialog); reject(null);
+            }
+            self.document.body.append(shadow);
+            self.document.body.append(dialog);
+            dialog.querySelector('.mud-pop-prompt-text').select();
+        })
+    }
+
     //设置窗口可移动
     ApiMudMoveable(windowItem) {
         let lastX, lastY;
@@ -521,7 +552,7 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '激活/关闭触发器';
-            pBtn.addEventListener('click', () => {
+            pBtn.addEventListener('click', async () => {
                 dialog.close();
                 this.ApiDlgTriggerActive();
             }, false)
@@ -531,7 +562,7 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '激活/关闭定时器';
-            pBtn.addEventListener('click', () => {
+            pBtn.addEventListener('click', async () => {
                 dialog.close();
                 this.ApiDlgTimerActive();
             }, false)
@@ -541,9 +572,9 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加触发器';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入要添加的触发器名"); if (usrInput == null) return;
-                let usrInput1 = prompt("请输入要添加的触发器语法"); if (usrInput1 == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("添加触发器","请输入要添加的触发器名"); if (usrInput == null) return;
+                let usrInput1 = await this.ApiMudPrompt("添加触发器","请输入要添加的触发器语法"); if (usrInput1 == null) return;
                 if (usrInput != null && usrInput1 != null) {
                     this.ApiSetRule({ type: 'triggerRule', actionName: usrInput, action: usrInput1 });
                     alert('添加成功');
@@ -555,9 +586,9 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加定时器';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入要添加的定时器名"); if (usrInput == null) return;
-                let usrInput1 = prompt("请输入要添加的定时器语法"); if (usrInput1 == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("添加定时器","请输入要添加的定时器名"); if (usrInput == null) return;
+                let usrInput1 = await this.ApiMudPrompt("添加定时器","请输入要添加的定时器语法"); if (usrInput1 == null) return;
                 if (usrInput != null && usrInput1 != null) {
                     this.ApiSetRule({ type: 'timerRule', actionName: usrInput, action: usrInput1 });
                     alert('添加成功');
@@ -569,10 +600,10 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加控件指令';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入语法描述"); if (usrInput == null) return;
-                let usrInput1 = prompt("请输入语法"); if (usrInput1 == null) return;
-                let usrInput2 = prompt("请输入组名(左0下1右2)"); if (usrInput2 == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("添加控件指令","请输入语法描述"); if (usrInput == null) return;
+                let usrInput1 = await this.ApiMudPrompt("添加控件指令","请输入语法"); if (usrInput1 == null) return;
+                let usrInput2 = await this.ApiMudPrompt("添加控件指令","请输入组名(左0下1右2)"); if (usrInput2 == null) return;
                 if (usrInput != null && usrInput1 != null && usrInput2 != null) {
                     this.ApiSetRule({ type: 'controlRule', actionName: usrInput, action: usrInput1, group: usrInput2 });
                     alert('添加成功');
@@ -584,9 +615,9 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加公共指令';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入语法描述"); if (usrInput == null) return;
-                let usrInput1 = prompt("请输入要添加的公共指令的语法", "{{cmd}}"); if (usrInput1 == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("添加公共指令","请输入语法描述"); if (usrInput == null) return;
+                let usrInput1 = await this.ApiMudPrompt("添加公共指令","请输入要添加的公共指令的语法", "{{cmd}}"); if (usrInput1 == null) return;
                 if (usrInput != null && usrInput1 != null) {
                     this.ApiSetRule({ type: 'publicRule', actionName: usrInput, action: usrInput1 });
                     alert('添加成功');
@@ -598,10 +629,10 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加分组指令';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入语法描述"); if (usrInput == null) return;
-                let usrInput1 = prompt("请输入语法"); if (usrInput1 == null) return;
-                let usrInput2 = prompt("请输入组名"); if (usrInput2 == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("添加分组指令","请输入语法描述"); if (usrInput == null) return;
+                let usrInput1 = await this.ApiMudPrompt("添加分组指令","请输入语法"); if (usrInput1 == null) return;
+                let usrInput2 = await this.ApiMudPrompt("添加分组指令","请输入组名"); if (usrInput2 == null) return;
                 if (usrInput != null && usrInput1 != null && usrInput2 != null) {
                     this.ApiSetRule({ type: 'groupRule', actionName: usrInput, action: usrInput1, group: usrInput2 });
                     alert('添加成功');
@@ -614,8 +645,8 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除触发器';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入要添加的触发器名"); if (usrInput == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("删除触发器","请输入要添加的触发器名"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'triggerRule', actionName: usrInput, action: null });
                     alert('删除成功');
@@ -627,8 +658,8 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除定时器';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入要添加的定时器名"); if (usrInput == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("删除定时器","请输入要添加的定时器名"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'timerRule', actionName: usrInput, action: null });
                     alert('删除成功');
@@ -640,8 +671,8 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除控件';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入控件语法描述"); if (usrInput == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("删除控件","请输入控件语法描述"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'controlRule', actionName: usrInput, action: null });
                     alert('删除成功');
@@ -653,8 +684,8 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除公共指令';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入控件语法描述"); if (usrInput == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("删除公共指令","请输入控件语法描述"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'publicRule', actionName: usrInput, action: null });
                     alert('删除成功');
@@ -666,8 +697,8 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除分组';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入组名"); if (usrInput == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("删除分组","请输入组名"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'groupRule', group: usrInput, actionName: null, action: null });
                     alert('删除成功');
@@ -679,8 +710,8 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除项目绑定';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入要删除的项目绑定名"); if (usrInput == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("删除项目绑定","请输入要删除的项目绑定名"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'praviteRule', element: usrInput, group: null });
                     alert('删除成功');
@@ -693,8 +724,8 @@ class ezmud {
             let pBtn = self.document.createElement('div');
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '初始化全部设定';
-            pBtn.addEventListener('click', () => {
-                let usrInput = prompt("请输入 confirm 确认初始化全部设定"); if (usrInput == null) return;
+            pBtn.addEventListener('click', async () => {
+                let usrInput = await this.ApiMudPrompt("初始化全部设定","请输入 confirm 确认初始化全部设定"); if (usrInput == null) return;
                 if (usrInput == 'confirm') {
                     this.settings = { variables: {}, elementRules: { pravite: {}, public: {}, group: {} }, triggers: {}, controls: {}, timers: {} };
                     this.ApiSaveSetting();
@@ -754,8 +785,8 @@ class ezmud {
                 let pButton = self.document.createElement('div');
                 pButton.className = 'mud-pop-dialog-button';
                 pButton.innerText = '[激活]' + pActionName;
-                pButton.addEventListener('click', () => {
-                    let usrInput = prompt("请输入间隔时间(毫秒)", "10000"); if (usrInput == null) return;
+                pButton.addEventListener('click', async () => {
+                    let usrInput = await this.ApiMudPrompt('[激活]' + pActionName,"请输入间隔时间(毫秒)", "10000"); if (usrInput == null) return;
                     this.ApiSetTimer(pActionName, true, Number(usrInput));
                     dialog.close();
                     this.ApiDlgTimerActive();
@@ -767,9 +798,8 @@ class ezmud {
             let pButton = self.document.createElement('div');
             pButton.className = 'mud-pop-dialog-button';
             pButton.innerText = '[关闭]' + pActionName;
-            pButton.addEventListener('click', () => {
-                let usrInput = prompt("请输入间隔时间(毫秒)", "10000"); if (usrInput == null) return;
-                this.ApiSetTimer(pActionName, false, Number(usrInput));
+            pButton.addEventListener('click', async () => {
+                this.ApiSetTimer(pActionName, false, null);
                 dialog.close();
                 this.ApiDlgTimerActive();
             }, false)
