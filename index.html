@@ -232,7 +232,6 @@
             height: 100%;
             opacity: .7;
             background-color: #000;
-            z-index: 10000;
         }
 
         .mud-pop-dialog {
@@ -250,7 +249,6 @@
             background-color: rgb(26, 26, 26);
             border-radius: 3px;
             box-shadow: 10px 10px 10px rgb(0 0 0 / 80%);
-            z-index: 10001;
             color: rgb(200, 200, 200);
             font-size: 1rem;
         }
@@ -328,6 +326,82 @@
             height: 1px;
             background-color: black;
         }
+
+        .mud-pop-prompt {
+            position: fixed;
+            margin: auto;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            height: 20rem;
+            width: 25rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+            opacity: 1;
+            background-color: rgb(26, 26, 26);
+            border-radius: 3px;
+            box-shadow: 10px 10px 10px rgb(0 0 0 / 80%);
+            color: rgb(200, 200, 200);
+            font-size: 1rem;
+        }
+
+        .mud-pop-prompt .mud-pop-prompt-title {
+            padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .mud-pop-prompt hr {
+            margin: 0.2rem 0 0.2rem 0;
+            padding: 0;
+            border: none;
+            height: 1px;
+            background-color: black;
+        }
+
+        .mud-pop-prompt textarea {
+            resize: none;
+            border: none;
+            padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+            background: rgb(26, 26, 26);
+            color: rgb(200, 255, 200);
+            font-size: 1rem;
+            outline: none;
+            width: calc(100% - 1rem);
+            height: 11rem;
+        }
+
+        .mud-pop-prompt input {
+            border: none;
+            background: rgb(26, 26, 26);
+            color: rgb(200, 200, 200);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .mud-pop-prompt input[type="submit"],
+        .mud-pop-prompt input[type="button"] {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rgb(255, 200, 200);
+            padding: 0.5rem 1rem 0.5rem 1rem;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .mud-pop-prompt input[type="button"]:active {
+            color: rgb(200, 200, 255);
+        }
+
+        .mud-pop-prompt input[type="text"] {
+            width: 100%;
+            color: rgb(200, 255, 200);
+            padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+            width: calc(100% - 1rem);
+        }
     </style>
 </head>
 
@@ -357,6 +431,12 @@
             <input type="submit" id="mud_send">
         </form>
     </div>
+    <!--debugger
+        <script src="./backup/eruda.min.js"></script>
+    <script>
+        eruda.init(); eruda.get("console").config.set("displayGetterVal", !0);
+    </script>
+    -->
     <script src="./ansi_up.js"></script>
     <script src="./ezmud.js"></script>
     <script>
@@ -486,8 +566,8 @@
                 });
                 pMud.ApiSetRule({
                     type: 'publicRule', actionName: '添加行为', action: `~~
-                    let a = prompt("请输入语法描述(输入direct则点击即触发)", 'direct'); if (a == null) return;
-                    let b = prompt("请输入语法", '{{cmd}}'); if (b == null) return;
+                    let a = await thisMud.ApiMudPrompt("添加行为","请输入语法描述(输入direct则点击即触发)", 'direct'); if (a == null) return;
+                    let b = await thisMud.ApiMudPrompt("添加行为","请输入语法", '{{cmd}}'); if (b == null) return;
                     thisMud.ApiSetRule({type:'praviteRule',element:thisCmd,actionName:a,action:b});
                 `});
                 pMud.ApiSetRule({
@@ -500,8 +580,8 @@
                 `});
                 pMud.ApiSetRule({
                     type: 'controlRule', actionName: '字', group: '2', action: `~~
-                    let a = prompt("请输入字体大小", '16px'); if (a == null) return;
-                    self.document.querySelector('html').setAttribute('style','font-size: '+a+';')
+                    let a = await thisMud.ApiMudPrompt("字体大小","请输入字体大小", '16px'); if (a == null) return;
+                    self.document.documentElement.style.fontSize = a;
                 `});
                 pMud.ApiSetRule({
                     type: 'controlRule', actionName: '连接游戏', group: '0', action: `~~
