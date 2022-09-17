@@ -531,7 +531,7 @@
                 newSpan.className = 'mud-section mud-elements';
                 newSpan.innerText = mudText.value + "\n";
                 let elementText = mudText.value;
-                newSpan.addEventListener('click', () => { pMud.ApiScript(mudText.value) });
+                newSpan.addEventListener('click', (e) => { mud.ApiScript(e.target.innerText) });
                 mudBottom.appendChild(newSpan);
                 mud.ApiScript(mudText.value);
                 mudText.select();
@@ -566,7 +566,7 @@
                         mudBottom.removeChild(mudBottom.getElementsByClassName('mud-section')[i]);
                     }
                 }
-                const topReg = [/【.+】.+：/, /告诉你：/, /说道：/, /走了过来。/, /往.+离开。/];
+                const topReg = [/^ ?【.+】.+/];
                 for (let i in topReg) {
                     if (topReg[i].test(msg.element.innerText)) {
                         msg.isShow = false;
@@ -623,7 +623,7 @@
             }
             mud.OnInitEndEventHandler = (pMud) => {
                 //设置默认行为
-                const moveRule = ['north', 'east', 'west', 'south', 'northeast', 'southeast', 'southwest', 'northwest', 'up', 'down', 'in', 'out', 'enter'];
+                const moveRule = ['north', 'east', 'west', 'south', 'northeast', 'southeast', 'southwest', 'northwest', 'up', 'down', 'in', 'out', 'enter', 'ENTER'];
                 for (let i in moveRule) {
                     pMud.ApiSetRule({
                         type: 'praviteRule', element: moveRule[i], actionName: 'direct', action: '{{cmd}}'
