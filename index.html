@@ -404,9 +404,14 @@
         }
 
         .mud-joystick {
-            padding-top: 10px;
+            box-sizing: border-box;
+            border-top: 10px solid rgb(0 0 0 / 0%);
             position: fixed;
             background: none;
+        }
+        .mud-joystick:hover {
+            box-sizing: border-box;
+            border-top: 10px solid rgb(100 100 100 / 20%);
         }
 
         .mud-joystick-enabled {
@@ -568,7 +573,7 @@
                 }
                 const topReg = [/^ ?【.+】.+/];
                 for (let i in topReg) {
-                    if (topReg[i].test(msg.element.innerText)) {
+                    if (topReg[i].test(msg.element.innerText)&&msg.element.innerText.length<150) {
                         msg.isShow = false;
                         mudTop.appendChild(msg.element);
                         document.querySelector('.container_main_top').scrollTop = document.querySelector('.container_main_top').scrollHeight;
@@ -740,7 +745,6 @@
                     let regJoyStick = RegExp('(这里唯一的出口是|这里明显的方向有)(.+)\\n', "ig");
                     let regWord = RegExp('[a-z]{3,20}', "ig");
                     if (regJoyStick.test(msg.original)) {
-                        debugger;
                         self.document.querySelectorAll('#joyStickDiv>ul>li').forEach((node) => { delete node.dataset.action;node.classList.remove('mud-joystick-enabled') });
                         let words = msg.element.innerText.match(regWord);
                         let joymap = {
