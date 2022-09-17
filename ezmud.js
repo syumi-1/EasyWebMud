@@ -145,6 +145,24 @@ class ezmud {
         }
     };
 
+    //设置摇杆
+    ApiMudJoyStick(windowItem, actions) {
+        if (actions.length != 8) return;
+        windowItem.className = 'mud-joystick';
+        windowItem.innerHTML = '<ul><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul>';
+        windowItem.querySelector('ul').onmousedown = (e) => {
+            e.stopPropagation();
+        }
+        windowItem.querySelector('ul').ontouchstart = (e) => {
+            e.stopPropagation();
+        }
+        const joyNodes = windowItem.querySelectorAll('li');
+        for (let i in actions) {
+            joyNodes[i].onclick=actions[i];
+        }
+        this.ApiMudMoveable(windowItem);
+    };
+
     //创建动态JS脚本
     _ApiMudScript(sc) {
         return new Promise((resolve, reject) => {
@@ -573,8 +591,8 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加触发器';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("添加触发器","请输入要添加的触发器名"); if (usrInput == null) return;
-                let usrInput1 = await this.ApiMudPrompt("添加触发器","请输入要添加的触发器语法"); if (usrInput1 == null) return;
+                let usrInput = await this.ApiMudPrompt("添加触发器", "请输入要添加的触发器名"); if (usrInput == null) return;
+                let usrInput1 = await this.ApiMudPrompt("添加触发器", "请输入要添加的触发器语法"); if (usrInput1 == null) return;
                 if (usrInput != null && usrInput1 != null) {
                     this.ApiSetRule({ type: 'triggerRule', actionName: usrInput, action: usrInput1 });
                     alert('添加成功');
@@ -587,8 +605,8 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加定时器';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("添加定时器","请输入要添加的定时器名"); if (usrInput == null) return;
-                let usrInput1 = await this.ApiMudPrompt("添加定时器","请输入要添加的定时器语法"); if (usrInput1 == null) return;
+                let usrInput = await this.ApiMudPrompt("添加定时器", "请输入要添加的定时器名"); if (usrInput == null) return;
+                let usrInput1 = await this.ApiMudPrompt("添加定时器", "请输入要添加的定时器语法"); if (usrInput1 == null) return;
                 if (usrInput != null && usrInput1 != null) {
                     this.ApiSetRule({ type: 'timerRule', actionName: usrInput, action: usrInput1 });
                     alert('添加成功');
@@ -601,9 +619,9 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加控件指令';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("添加控件指令","请输入语法描述"); if (usrInput == null) return;
-                let usrInput1 = await this.ApiMudPrompt("添加控件指令","请输入语法"); if (usrInput1 == null) return;
-                let usrInput2 = await this.ApiMudPrompt("添加控件指令","请输入组名(左0下1右2)"); if (usrInput2 == null) return;
+                let usrInput = await this.ApiMudPrompt("添加控件指令", "请输入语法描述"); if (usrInput == null) return;
+                let usrInput1 = await this.ApiMudPrompt("添加控件指令", "请输入语法"); if (usrInput1 == null) return;
+                let usrInput2 = await this.ApiMudPrompt("添加控件指令", "请输入组名(左0下1右2)"); if (usrInput2 == null) return;
                 if (usrInput != null && usrInput1 != null && usrInput2 != null) {
                     this.ApiSetRule({ type: 'controlRule', actionName: usrInput, action: usrInput1, group: usrInput2 });
                     alert('添加成功');
@@ -616,8 +634,8 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加公共指令';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("添加公共指令","请输入语法描述"); if (usrInput == null) return;
-                let usrInput1 = await this.ApiMudPrompt("添加公共指令","请输入要添加的公共指令的语法", "{{cmd}}"); if (usrInput1 == null) return;
+                let usrInput = await this.ApiMudPrompt("添加公共指令", "请输入语法描述"); if (usrInput == null) return;
+                let usrInput1 = await this.ApiMudPrompt("添加公共指令", "请输入要添加的公共指令的语法", "{{cmd}}"); if (usrInput1 == null) return;
                 if (usrInput != null && usrInput1 != null) {
                     this.ApiSetRule({ type: 'publicRule', actionName: usrInput, action: usrInput1 });
                     alert('添加成功');
@@ -630,9 +648,9 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '添加分组指令';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("添加分组指令","请输入语法描述"); if (usrInput == null) return;
-                let usrInput1 = await this.ApiMudPrompt("添加分组指令","请输入语法"); if (usrInput1 == null) return;
-                let usrInput2 = await this.ApiMudPrompt("添加分组指令","请输入组名"); if (usrInput2 == null) return;
+                let usrInput = await this.ApiMudPrompt("添加分组指令", "请输入语法描述"); if (usrInput == null) return;
+                let usrInput1 = await this.ApiMudPrompt("添加分组指令", "请输入语法"); if (usrInput1 == null) return;
+                let usrInput2 = await this.ApiMudPrompt("添加分组指令", "请输入组名"); if (usrInput2 == null) return;
                 if (usrInput != null && usrInput1 != null && usrInput2 != null) {
                     this.ApiSetRule({ type: 'groupRule', actionName: usrInput, action: usrInput1, group: usrInput2 });
                     alert('添加成功');
@@ -646,7 +664,7 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除触发器';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("删除触发器","请输入要添加的触发器名"); if (usrInput == null) return;
+                let usrInput = await this.ApiMudPrompt("删除触发器", "请输入要添加的触发器名"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'triggerRule', actionName: usrInput, action: null });
                     alert('删除成功');
@@ -659,7 +677,7 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除定时器';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("删除定时器","请输入要添加的定时器名"); if (usrInput == null) return;
+                let usrInput = await this.ApiMudPrompt("删除定时器", "请输入要添加的定时器名"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'timerRule', actionName: usrInput, action: null });
                     alert('删除成功');
@@ -672,7 +690,7 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除控件';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("删除控件","请输入控件语法描述"); if (usrInput == null) return;
+                let usrInput = await this.ApiMudPrompt("删除控件", "请输入控件语法描述"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'controlRule', actionName: usrInput, action: null });
                     alert('删除成功');
@@ -685,7 +703,7 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除公共指令';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("删除公共指令","请输入控件语法描述"); if (usrInput == null) return;
+                let usrInput = await this.ApiMudPrompt("删除公共指令", "请输入控件语法描述"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'publicRule', actionName: usrInput, action: null });
                     alert('删除成功');
@@ -698,7 +716,7 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除分组';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("删除分组","请输入组名"); if (usrInput == null) return;
+                let usrInput = await this.ApiMudPrompt("删除分组", "请输入组名"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'groupRule', group: usrInput, actionName: null, action: null });
                     alert('删除成功');
@@ -711,7 +729,7 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '删除项目绑定';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("删除项目绑定","请输入要删除的项目绑定名"); if (usrInput == null) return;
+                let usrInput = await this.ApiMudPrompt("删除项目绑定", "请输入要删除的项目绑定名"); if (usrInput == null) return;
                 if (usrInput != null) {
                     this.ApiSetRule({ type: 'praviteRule', element: usrInput, group: null });
                     alert('删除成功');
@@ -725,7 +743,7 @@ class ezmud {
             pBtn.className = 'mud-pop-dialog-button';
             pBtn.innerText = '初始化全部设定';
             pBtn.addEventListener('click', async () => {
-                let usrInput = await this.ApiMudPrompt("初始化全部设定","请输入 confirm 确认初始化全部设定"); if (usrInput == null) return;
+                let usrInput = await this.ApiMudPrompt("初始化全部设定", "请输入 confirm 确认初始化全部设定"); if (usrInput == null) return;
                 if (usrInput == 'confirm') {
                     this.settings = { variables: {}, elementRules: { pravite: {}, public: {}, group: {} }, triggers: {}, controls: {}, timers: {} };
                     this.ApiSaveSetting();
@@ -786,7 +804,7 @@ class ezmud {
                 pButton.className = 'mud-pop-dialog-button';
                 pButton.innerText = '[激活]' + pActionName;
                 pButton.addEventListener('click', async () => {
-                    let usrInput = await this.ApiMudPrompt('[激活]' + pActionName,"请输入间隔时间(毫秒)", "10000"); if (usrInput == null) return;
+                    let usrInput = await this.ApiMudPrompt('[激活]' + pActionName, "请输入间隔时间(毫秒)", "10000"); if (usrInput == null) return;
                     this.ApiSetTimer(pActionName, true, Number(usrInput));
                     dialog.close();
                     this.ApiDlgTimerActive();
