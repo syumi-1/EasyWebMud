@@ -402,6 +402,77 @@
             padding: 0.5rem 0.5rem 0.5rem 0.5rem;
             width: calc(100% - 1rem);
         }
+
+        .mud-joystick {
+            padding-top: 10px;
+            position: fixed;
+            background: none;
+        }
+
+        .mud-joystick-enabled {
+            background-color: #0A0 !important;
+        }
+
+        .mud-joystick>ul {
+            position: relative;
+            padding: 0;
+            width: 20em;
+            height: 20em;
+            border-radius: 10em;
+            list-style: none;
+            overflow: hidden;
+        }
+
+        .mud-joystick>ul>li {
+            box-sizing: border-box;
+            border: 1px solid #AFAFAF;
+            overflow: hidden;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 10em;
+            height: 10em;
+            transform-origin: 0% 100%;
+            background-color: #777;
+            opacity: 0.5;
+        }
+
+        .mud-joystick>ul>li:hover,
+        .mud-joystick>ul>li:active {
+            opacity: 0.8;
+        }
+
+        .mud-joystick>ul>li:nth-child(8n-7) {
+            transform: rotate(-22.5deg) skewY(-45deg);
+        }
+
+        .mud-joystick>ul>li:nth-child(8n-6) {
+            transform: rotate(22.5deg) skewY(-45deg);
+        }
+
+        .mud-joystick>ul>li:nth-child(8n-5) {
+            transform: rotate(67.5deg) skewY(-45deg);
+        }
+
+        .mud-joystick>ul>li:nth-child(8n-4) {
+            transform: rotate(112.5deg) skewY(-45deg);
+        }
+
+        .mud-joystick>ul>li:nth-child(8n-3) {
+            transform: rotate(157.5deg) skewY(-45deg);
+        }
+
+        .mud-joystick>ul>li:nth-child(8n-2) {
+            transform: rotate(202.5deg) skewY(-45deg);
+        }
+
+        .mud-joystick>ul>li:nth-child(8n-1) {
+            transform: rotate(247.5deg) skewY(-45deg);
+        }
+
+        .mud-joystick>ul>li:nth-child(8n) {
+            transform: rotate(292.5deg) skewY(-45deg);
+        }
     </style>
 </head>
 
@@ -508,6 +579,7 @@
                     mudBottom.appendChild(msg.element);
                     document.querySelector('.container_main_bottom').scrollTop = document.querySelector('.container_main_bottom').scrollHeight;
                 }
+                console.log(msg.original);
             }
 
             mud.OnCloseEventHandler = async (pMud, url) => {
@@ -635,8 +707,62 @@
                 }
                 `});
 
+                pMud.ApiSetRule({
+                    type: 'controlRule', actionName: '方向摇杆', group: '0', action: `~~
+                    if (self.document.querySelector('#joyStickDiv') == null) {
+                    let joyStickDiv = self.document.createElement('div');
+                    joyStickDiv.id = 'joyStickDiv'
+                    joyStickDiv.style.position = 'fixed'
+                    joyStickDiv.style.top = '10vh'
+                    joyStickDiv.style.left = '10vw'
+                    joyStickDiv.style.fontSize = '10px'
+                    let actions=[
+                        ()=>{thisMud.ApiScript('north');},
+                        ()=>{thisMud.ApiScript('northeast');},
+                        ()=>{thisMud.ApiScript('east');},
+                        ()=>{thisMud.ApiScript('southeast');},
+                        ()=>{thisMud.ApiScript('south');},
+                        ()=>{thisMud.ApiScript('southwest');},
+                        ()=>{thisMud.ApiScript('west');},
+                        ()=>{thisMud.ApiScript('northwest');},
+                    ];
+                    thisMud.ApiMudJoyStick(joyStickDiv,actions);
+                    self.document.body.appendChild(joyStickDiv);
+                    thisMud.ApiSetTrigger('方向摇杆', true)
+                } else {
+                    let joyStickDiv = self.document.querySelector('#joyStickDiv');
+                    joyStickDiv.parentNode.removeChild(joyStickDiv);
+                    thisMud.ApiSetTrigger('方向摇杆', false)
+                }
+                `});
+                pMud.ApiSetRule({
+                    type: 'triggerRule', actionName: '方向摇杆', action: `~~
+                    if (self.document.querySelector('#joyStickDiv') != null) {
+                    let regJoyStick = RegExp('(这里唯一的出口是|这里明显的方向有)(.+)\\n', "ig");
+                    let regWord = RegExp('[a-z]{3,20}', "ig");
+                    if (regJoyStick.test(msg.original)) {
+                        debugger;
+                        self.document.querySelectorAll('#joyStickDiv>ul>li').forEach((node) => { node.classList.remove('mud-joystick-enabled') });
+                        let words = msg.element.innerText.match(regWord);
+                        for (let i in words) {
+                            switch (words[i]) {
+                                case 'north': self.document.querySelectorAll('#joyStickDiv>ul>li')[0].classList.add('mud-joystick-enabled');break;
+                                case 'northeast': self.document.querySelectorAll('#joyStickDiv>ul>li')[1].classList.add('mud-joystick-enabled');break;
+                                case 'east': self.document.querySelectorAll('#joyStickDiv>ul>li')[2].classList.add('mud-joystick-enabled');break;
+                                case 'southeast': self.document.querySelectorAll('#joyStickDiv>ul>li')[3].classList.add('mud-joystick-enabled');break;
+                                case 'south': self.document.querySelectorAll('#joyStickDiv>ul>li')[4].classList.add('mud-joystick-enabled');break;
+                                case 'southwest': self.document.querySelectorAll('#joyStickDiv>ul>li')[5].classList.add('mud-joystick-enabled');break;
+                                case 'west': self.document.querySelectorAll('#joyStickDiv>ul>li')[6].classList.add('mud-joystick-enabled');break;
+                                case 'northwest': self.document.querySelectorAll('#joyStickDiv>ul>li')[7].classList.add('mud-joystick-enabled');break;
+                            }
+                        }
+                    }
+                }
+                `});
+
             }
             mud.ApiMudInit();
+
 
 
 
