@@ -579,7 +579,6 @@
                     mudBottom.appendChild(msg.element);
                     document.querySelector('.container_main_bottom').scrollTop = document.querySelector('.container_main_bottom').scrollHeight;
                 }
-                console.log(msg.original);
             }
 
             mud.OnCloseEventHandler = async (pMud, url) => {
@@ -717,14 +716,14 @@
                     joyStickDiv.style.left = '10vw'
                     joyStickDiv.style.fontSize = '10px'
                     let actions=[
-                        ()=>{thisMud.ApiScript('north');},
-                        ()=>{thisMud.ApiScript('northeast');},
-                        ()=>{thisMud.ApiScript('east');},
-                        ()=>{thisMud.ApiScript('southeast');},
-                        ()=>{thisMud.ApiScript('south');},
-                        ()=>{thisMud.ApiScript('southwest');},
-                        ()=>{thisMud.ApiScript('west');},
-                        ()=>{thisMud.ApiScript('northwest');},
+                        (e)=>{thisMud.ApiScript(e.target.dataset.action||'north');},
+                        (e)=>{thisMud.ApiScript(e.target.dataset.action||'northeast');},
+                        (e)=>{thisMud.ApiScript(e.target.dataset.action||'east');},
+                        (e)=>{thisMud.ApiScript(e.target.dataset.action||'southeast');},
+                        (e)=>{thisMud.ApiScript(e.target.dataset.action||'south');},
+                        (e)=>{thisMud.ApiScript(e.target.dataset.action||'southwest');},
+                        (e)=>{thisMud.ApiScript(e.target.dataset.action||'west');},
+                        (e)=>{thisMud.ApiScript(e.target.dataset.action||'northwest');},
                     ];
                     thisMud.ApiMudJoyStick(joyStickDiv,actions);
                     self.document.body.appendChild(joyStickDiv);
@@ -742,18 +741,30 @@
                     let regWord = RegExp('[a-z]{3,20}', "ig");
                     if (regJoyStick.test(msg.original)) {
                         debugger;
-                        self.document.querySelectorAll('#joyStickDiv>ul>li').forEach((node) => { node.classList.remove('mud-joystick-enabled') });
+                        self.document.querySelectorAll('#joyStickDiv>ul>li').forEach((node) => { delete node.dataset.action;node.classList.remove('mud-joystick-enabled') });
                         let words = msg.element.innerText.match(regWord);
+                        let joymap = {
+                            'north': 0,
+                            'northup': 0,
+                            'northdown': 0,
+                            'northeast':1,
+                            'east':2,
+                            'eastup':2,
+                            'eastdown':2,
+                            'southeast':3,
+                            'south':4,
+                            'southup':4,
+                            'southdown':4,
+                            'southwest':5,
+                            'west':6,
+                            'westup':6,
+                            'westupdown':6,
+                            'northwest':7
+                        }
                         for (let i in words) {
-                            switch (words[i]) {
-                                case 'north': self.document.querySelectorAll('#joyStickDiv>ul>li')[0].classList.add('mud-joystick-enabled');break;
-                                case 'northeast': self.document.querySelectorAll('#joyStickDiv>ul>li')[1].classList.add('mud-joystick-enabled');break;
-                                case 'east': self.document.querySelectorAll('#joyStickDiv>ul>li')[2].classList.add('mud-joystick-enabled');break;
-                                case 'southeast': self.document.querySelectorAll('#joyStickDiv>ul>li')[3].classList.add('mud-joystick-enabled');break;
-                                case 'south': self.document.querySelectorAll('#joyStickDiv>ul>li')[4].classList.add('mud-joystick-enabled');break;
-                                case 'southwest': self.document.querySelectorAll('#joyStickDiv>ul>li')[5].classList.add('mud-joystick-enabled');break;
-                                case 'west': self.document.querySelectorAll('#joyStickDiv>ul>li')[6].classList.add('mud-joystick-enabled');break;
-                                case 'northwest': self.document.querySelectorAll('#joyStickDiv>ul>li')[7].classList.add('mud-joystick-enabled');break;
+                            if(joymap[words[i]]!=undefined){
+                                self.document.querySelectorAll('#joyStickDiv>ul>li')[joymap[words[i]]].dataset.action=words[i];
+                                self.document.querySelectorAll('#joyStickDiv>ul>li')[joymap[words[i]]].classList.add('mud-joystick-enabled');
                             }
                         }
                     }
@@ -762,6 +773,7 @@
 
             }
             mud.ApiMudInit();
+
 
 
 
