@@ -2,6 +2,7 @@
     "start_url": "index.html",
     "name": "EASY MUD",
     "short_name": "EZMUD",
+    "description": "EASY MUD",
     "icons": [
         {
             "src": "favicon.svg",
@@ -10,5 +11,7 @@
             "sizes": "any"
         }
     ],
-    "display": "fullscreen"
+    "display": "fullscreen",
+    "theme_color": "transparent",
+    "background_color": "transparent"
 }
